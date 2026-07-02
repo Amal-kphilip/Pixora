@@ -7,13 +7,15 @@ import {
   PromptItem,
   CategoryItem
 } from "@/data/defaultData";
+import { supabase } from "@/utils/supabaseClient";
 
 interface PixoraContextType {
   categories: CategoryItem[];
   prompts: PromptItem[];
-  addPrompt: (prompt: Omit<PromptItem, "id">) => void;
-  addCategory: (category: Omit<CategoryItem, "prompts">) => void;
-  resetData: () => void;
+  addPrompt: (prompt: Omit<PromptItem, "id">) => Promise<void>;
+  addCategory: (category: Omit<CategoryItem, "prompts">) => Promise<void>;
+  resetData: () => Promise<void>;
+  refreshDatabase: () => Promise<void>;
 }
 
 const PixoraContext = createContext<PixoraContextType | undefined>(undefined);
@@ -23,75 +25,175 @@ export function PixoraProvider({ children }: { children: ReactNode }) {
   const [prompts, setPrompts] = useState<PromptItem[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Initialize and load from localStorage after mounting
-  useEffect(() => {
-    const savedCategories = localStorage.getItem("pixora_custom_categories");
-    const savedPrompts = localStorage.getItem("pixora_custom_prompts");
+  // Load data from Supabase, fallback to defaults if database is not configured/empty
+  const loadData = async () => {
+    try {
+      // 1. Fetch Categories from Supabase
+      const { data: catData, error: catError } = await supabase
+        .from("categories")
+        .select("*")
+        .order("created_at", { ascending: true });
 
-    if (savedCategories) {
-      setCategories(JSON.parse(savedCategories));
-    } else {
+      // 2. Fetch Prompts from Supabase
+      const { data: promptData, error: promptError } = await supabase
+        .from("prompts")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (catError || promptError) {
+        console.error("Supabase load error, falling back to defaults:", catError, promptError);
+        setCategories(DEFAULT_CATEGORIES);
+        setPrompts(DEFAULT_PROMPTS);
+      } else {
+        // If database runs successfully but has no categories, display defaults
+        if (!catData || catData.length === 0) {
+          setCategories(DEFAULT_CATEGORIES);
+          setPrompts(DEFAULT_PROMPTS);
+        } else {
+          // Map database snake_case fields to CategoryItem interface
+          const mappedCats: CategoryItem[] = catData.map((c) => ({
+            id: c.id,
+            name: c.name,
+            description: c.description,
+            image: c.image,
+            beforeImage: c.before_image || undefined,
+            afterImage: c.after_image || undefined,
+            beforeFilter: c.before_filter,
+            afterFilter: c.after_filter,
+            prompts: [] // Filled dynamically below
+          }));
+
+          // Map database prompts to PromptItem interface
+          const mappedPrompts: PromptItem[] = (promptData || []).map((p) => ({
+            id: p.id,
+            title: p.title,
+            category: p.category,
+            tool: p.tool as "Midjourney" | "Lightroom" | "Photoshop",
+            promptText: p.prompt_text,
+            image: p.image,
+            complexity: p.complexity as "Basic" | "Advanced" | "Pro"
+          }));
+
+          // Nest prompt lists into their parent category items (needed for FeatureGrid modals)
+          mappedCats.forEach((cat) => {
+            cat.prompts = mappedPrompts
+              .filter((p) => p.category.toLowerCase() === cat.name.toLowerCase())
+              .map((p) => ({ title: p.title, text: p.promptText }));
+          });
+
+          setCategories(mappedCats);
+          setPrompts(mappedPrompts);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load Supabase database, using fallback defaults:", err);
       setCategories(DEFAULT_CATEGORIES);
-      localStorage.setItem("pixora_custom_categories", JSON.stringify(DEFAULT_CATEGORIES));
-    }
-
-    if (savedPrompts) {
-      setPrompts(JSON.parse(savedPrompts));
-    } else {
       setPrompts(DEFAULT_PROMPTS);
-      localStorage.setItem("pixora_custom_prompts", JSON.stringify(DEFAULT_PROMPTS));
+    } finally {
+      setIsLoaded(true);
     }
+  };
 
-    setIsLoaded(true);
+  useEffect(() => {
+    loadData();
   }, []);
 
-  const addPrompt = (newPrompt: Omit<PromptItem, "id">) => {
-    const promptWithId: PromptItem = {
-      ...newPrompt,
-      id: `pr-custom-${Date.now()}`
-    };
+  const addPrompt = async (newPrompt: Omit<PromptItem, "id">) => {
+    try {
+      const { error } = await supabase
+        .from("prompts")
+        .insert([{
+          title: newPrompt.title,
+          category: newPrompt.category,
+          tool: newPrompt.tool,
+          prompt_text: newPrompt.promptText,
+          image: newPrompt.image,
+          complexity: newPrompt.complexity
+        }]);
 
-    const updatedPrompts = [promptWithId, ...prompts];
-    setPrompts(updatedPrompts);
-    localStorage.setItem("pixora_custom_prompts", JSON.stringify(updatedPrompts));
+      if (error) throw error;
+      await loadData();
+    } catch (err) {
+      console.error("Failed to insert prompt to Supabase:", err);
+      alert("Failed to insert prompt to live database: " + (err as Error).message);
+    }
+  };
 
-    // Also append this prompt inside the corresponding category's prompts array if category exists!
-    const targetCatId = newPrompt.category.toLowerCase();
-    const updatedCategories = categories.map((cat) => {
-      if (cat.id === targetCatId) {
-        return {
-          ...cat,
-          prompts: [...cat.prompts, { title: newPrompt.title, text: newPrompt.promptText }]
-        };
+  const addCategory = async (newCat: Omit<CategoryItem, "prompts">) => {
+    try {
+      const { error } = await supabase
+        .from("categories")
+        .insert([{
+          id: newCat.id.toLowerCase().trim().replace(/\s+/g, "-"),
+          name: newCat.name,
+          description: newCat.description,
+          image: newCat.image,
+          before_image: newCat.beforeImage || null,
+          after_image: newCat.afterImage || null,
+          before_filter: newCat.beforeFilter,
+          after_filter: newCat.afterFilter
+        }]);
+
+      if (error) throw error;
+      await loadData();
+    } catch (err) {
+      console.error("Failed to insert category to Supabase:", err);
+      alert("Failed to insert category to live database: " + (err as Error).message);
+    }
+  };
+
+  const resetData = async () => {
+    try {
+      // Clear follower local state
+      localStorage.removeItem("pixora_instagram_followed");
+
+      // Verify if admin session is active
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        alert("Authentication Required: Please log in to the Creator Console to perform a database reset.");
+        return;
       }
-      return cat;
-    });
-    setCategories(updatedCategories);
-    localStorage.setItem("pixora_custom_categories", JSON.stringify(updatedCategories));
+
+      if (confirm("WARNING: This will wipe your live cloud tables and re-seed with default Pixora prompts. Proceed?")) {
+        // Delete all live prompts and categories
+        await supabase.from("prompts").delete().neq("title", "");
+        await supabase.from("categories").delete().neq("name", "");
+
+        // Reseed default categories
+        for (const cat of DEFAULT_CATEGORIES) {
+          await supabase.from("categories").insert([{
+            id: cat.id,
+            name: cat.name,
+            description: cat.description,
+            image: cat.image,
+            before_image: cat.beforeImage || null,
+            after_image: cat.afterImage || null,
+            before_filter: cat.beforeFilter,
+            after_filter: cat.afterFilter
+          }]);
+        }
+
+        // Reseed default prompts
+        for (const prompt of DEFAULT_PROMPTS) {
+          await supabase.from("prompts").insert([{
+            title: prompt.title,
+            category: prompt.category,
+            tool: prompt.tool,
+            prompt_text: prompt.promptText,
+            image: prompt.image,
+            complexity: prompt.complexity
+          }]);
+        }
+
+        alert("Cloud database successfully re-seeded!");
+        await loadData();
+      }
+    } catch (err) {
+      console.error("Database reset error:", err);
+      alert("Error resetting database: " + (err as Error).message);
+    }
   };
 
-  const addCategory = (newCat: Omit<CategoryItem, "prompts">) => {
-    const categoryWithPrompts: CategoryItem = {
-      ...newCat,
-      id: newCat.id.toLowerCase().trim().replace(/\s+/g, "-"),
-      prompts: [] // Starts with empty prompts
-    };
-
-    const updatedCategories = [...categories, categoryWithPrompts];
-    setCategories(updatedCategories);
-    localStorage.setItem("pixora_custom_categories", JSON.stringify(updatedCategories));
-  };
-
-  const resetData = () => {
-    localStorage.removeItem("pixora_custom_categories");
-    localStorage.removeItem("pixora_custom_prompts");
-    localStorage.removeItem("pixora_instagram_followed");
-    setCategories(DEFAULT_CATEGORIES);
-    setPrompts(DEFAULT_PROMPTS);
-    window.location.reload();
-  };
-
-  // Render children normally but avoid hydrations issues by using empty arrays during SSR
   return (
     <PixoraContext.Provider
       value={{
@@ -99,7 +201,8 @@ export function PixoraProvider({ children }: { children: ReactNode }) {
         prompts: isLoaded ? prompts : [],
         addPrompt,
         addCategory,
-        resetData
+        resetData,
+        refreshDatabase: loadData
       }}
     >
       {children}
