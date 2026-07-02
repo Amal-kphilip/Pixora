@@ -245,13 +245,10 @@ export default function PromptLibrary() {
                       />
                       
                       {/* Tags overlay */}
-                      <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+                      <div className="absolute top-3 left-3 pointer-events-none">
                         <span className="bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-lg text-[9px] font-mono font-bold tracking-wider text-brand-accent border border-brand-accent/20 flex items-center gap-1">
                           <Tag size={10} />
                           {card.category.toUpperCase()}
-                        </span>
-                        <span className="bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-lg text-[9px] font-mono font-bold tracking-wider text-white border border-white/10">
-                          {card.complexity.toUpperCase()}
                         </span>
                       </div>
 
@@ -268,9 +265,13 @@ export default function PromptLibrary() {
                         <Heart size={13} className={isFaved ? "fill-brand-accent" : ""} />
                       </button>
 
-                      {/* Tool tag */}
+                      {/* Tool & Complexity tags */}
                       <span className="absolute bottom-3 left-3 bg-brand-bg/80 backdrop-blur-sm px-2.5 py-1 rounded-lg text-[10px] font-bold text-white tracking-wide border border-white/5">
                         {card.tool}
+                      </span>
+
+                      <span className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-lg text-[9px] font-mono font-bold tracking-wider text-white border border-white/10">
+                        {card.complexity.toUpperCase()}
                       </span>
                     </div>
 
