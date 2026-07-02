@@ -5,10 +5,11 @@ import { Check, Copy, Tag, Search, Heart, X, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePixora } from "@/context/PixoraContext";
 import { useLenis } from "@studio-freight/react-lenis";
+import Image from "next/image";
 
 export default function PromptLibrary() {
   const lenis = useLenis();
-  const { prompts, categories } = usePixora();
+  const { prompts, categories, incrementCopyCount, updateFavoriteCount, showToast } = usePixora();
   const [activeFilter, setActiveFilter] = useState("All");
   const [activeToolFilter, setActiveToolFilter] = useState("All");
   const [activeComplexityFilter, setActiveComplexityFilter] = useState("All");
@@ -53,20 +54,26 @@ export default function PromptLibrary() {
   const handleCopy = (id: string, text: string) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
+    incrementCopyCount(id); // Increment copy analytics in Supabase
+    showToast("AI formula copied to clipboard!");
     setTimeout(() => {
       setCopiedId(null);
     }, 2000);
   };
 
   const toggleFavorite = (id: string) => {
+    const isFaved = favorites.includes(id);
     let nextFavs;
-    if (favorites.includes(id)) {
+    if (isFaved) {
       nextFavs = favorites.filter(favId => favId !== id);
+      showToast("Removed from Saved collection");
     } else {
       nextFavs = [...favorites, id];
+      showToast("Added to Saved collection");
     }
     setFavorites(nextFavs);
     localStorage.setItem("pixora-favorites", JSON.stringify(nextFavs));
+    updateFavoriteCount(id, !isFaved); // Update database analytics in Supabase
   };
 
   const highlightPrompt = (text: string) => {
@@ -229,10 +236,12 @@ export default function PromptLibrary() {
                   >
                     {/* Visual Card image */}
                     <div className="relative w-full h-[180px] rounded-2xl overflow-hidden mb-5 bg-[#0E0E12]">
-                      <img
+                      <Image
                         src={card.image}
                         alt={card.title}
-                        className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-expo-out"
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-expo-out"
                       />
                       
                       {/* Tags overlay */}
@@ -387,7 +396,15 @@ export default function PromptLibrary() {
                         >
                           <div className="flex items-center justify-between gap-3">
                             <div className="flex items-center gap-3 min-w-0">
-                              <img src={item.image} className="w-10 h-10 rounded-xl object-cover flex-shrink-0" alt="preview" />
+                              <div className="relative w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 bg-[#0E0E12]">
+                                <Image 
+                                  src={item.image} 
+                                  alt="preview"
+                                  fill
+                                  sizes="40px"
+                                  className="object-cover"
+                                />
+                              </div>
                               <div className="min-w-0">
                                 <h5 className="text-xs font-bold text-white truncate">{item.title}</h5>
                                 <p className="text-[9px] font-mono text-white/30 uppercase truncate">{item.category} • {item.tool}</p>

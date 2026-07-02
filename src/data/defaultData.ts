@@ -7,6 +7,8 @@ export interface PromptItem {
   promptText: string;
   image: string;
   complexity: "Basic" | "Advanced" | "Pro";
+  copyCount?: number;
+  favoriteCount?: number;
 }
 
 export interface CategoryItem {

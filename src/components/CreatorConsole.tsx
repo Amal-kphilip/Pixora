@@ -548,7 +548,7 @@ export default function CreatorConsole() {
                                     <img src={p.image} className="w-8 h-8 rounded-lg object-cover flex-shrink-0" alt="preview" />
                                     <div className="min-w-0">
                                       <p className="text-xs font-semibold text-white truncate">{p.title}</p>
-                                      <p className="text-[9px] font-mono text-white/30 uppercase truncate">{p.category} • {p.tool}</p>
+                                      <p className="text-[9px] font-mono text-white/30 uppercase truncate">{p.category} • {p.tool} • 📋 {p.copyCount || 0} • ❤️ {p.favoriteCount || 0}</p>
                                     </div>
                                   </div>
                                   <button

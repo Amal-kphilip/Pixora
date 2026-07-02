@@ -1,13 +1,10 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import {
-  DEFAULT_CATEGORIES,
-  DEFAULT_PROMPTS,
-  PromptItem,
-  CategoryItem
-} from "@/data/defaultData";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { CategoryItem, PromptItem, DEFAULT_CATEGORIES, DEFAULT_PROMPTS } from "@/data/defaultData";
 import { supabase } from "@/utils/supabaseClient";
+import { motion, AnimatePresence } from "framer-motion";
+import { Sparkles } from "lucide-react";
 
 interface PixoraContextType {
   categories: CategoryItem[];
@@ -17,6 +14,9 @@ interface PixoraContextType {
   addCategory: (category: Omit<CategoryItem, "prompts">) => Promise<void>;
   deletePrompt: (id: string) => Promise<void>;
   deleteCategory: (id: string) => Promise<void>;
+  incrementCopyCount: (id: string) => Promise<void>;
+  updateFavoriteCount: (id: string, isAdded: boolean) => Promise<void>;
+  showToast: (message: string) => void;
   resetData: () => Promise<void>;
   refreshDatabase: () => Promise<void>;
 }
@@ -27,6 +27,17 @@ export function PixoraProvider({ children }: { children: ReactNode }) {
   const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [prompts, setPrompts] = useState<PromptItem[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastTimer, setToastTimer] = useState<NodeJS.Timeout | null>(null);
+
+  const showToast = (message: string) => {
+    if (toastTimer) clearTimeout(toastTimer);
+    setToastMessage(message);
+    const timer = setTimeout(() => {
+      setToastMessage(null);
+    }, 2500);
+    setToastTimer(timer);
+  };
 
   // Load data from Supabase, fallback to defaults if database is not configured/empty
   const loadData = async () => {
@@ -74,7 +85,9 @@ export function PixoraProvider({ children }: { children: ReactNode }) {
             tool: p.tool as "Midjourney" | "Lightroom" | "Photoshop",
             promptText: p.prompt_text,
             image: p.image,
-            complexity: p.complexity as "Basic" | "Advanced" | "Pro"
+            complexity: p.complexity as "Basic" | "Advanced" | "Pro",
+            copyCount: p.copy_count || 0,
+            favoriteCount: p.favorite_count || 0
           }));
 
           // Nest prompt lists into their parent category items (needed for FeatureGrid modals)
@@ -115,6 +128,7 @@ export function PixoraProvider({ children }: { children: ReactNode }) {
         }]);
 
       if (error) throw error;
+      showToast("Prompt added successfully!");
       await loadData();
     } catch (err) {
       console.error("Failed to insert prompt to Supabase:", err);
@@ -138,12 +152,14 @@ export function PixoraProvider({ children }: { children: ReactNode }) {
         }]);
 
       if (error) throw error;
+      showToast("Category added successfully!");
       await loadData();
     } catch (err) {
       console.error("Failed to insert category to Supabase:", err);
       alert("Failed to insert category to live database: " + (err as Error).message);
     }
   };
+
   const deletePrompt = async (id: string) => {
     try {
       const { error } = await supabase
@@ -152,6 +168,7 @@ export function PixoraProvider({ children }: { children: ReactNode }) {
         .eq("id", id);
 
       if (error) throw error;
+      showToast("Prompt deleted!");
       await loadData();
     } catch (err) {
       console.error("Failed to delete prompt from Supabase:", err);
@@ -175,30 +192,66 @@ export function PixoraProvider({ children }: { children: ReactNode }) {
         .eq("id", id);
 
       if (error) throw error;
+      showToast("Category deleted!");
       await loadData();
     } catch (err) {
       console.error("Failed to delete category from Supabase:", err);
       alert("Failed to delete category: " + (err as Error).message);
     }
   };
+
+  const incrementCopyCount = async (id: string) => {
+    try {
+      const target = prompts.find(p => p.id === id);
+      if (target) {
+        const nextCount = (target.copyCount || 0) + 1;
+        
+        // Optimistically update local state so UI updates instantly
+        setPrompts(prev => prev.map(p => p.id === id ? { ...p, copyCount: nextCount } : p));
+
+        // Save to Supabase
+        await supabase
+          .from("prompts")
+          .update({ copy_count: nextCount })
+          .eq("id", id);
+      }
+    } catch (err) {
+      console.error("Failed to increment copy count:", err);
+    }
+  };
+
+  const updateFavoriteCount = async (id: string, isAdded: boolean) => {
+    try {
+      const target = prompts.find(p => p.id === id);
+      if (target) {
+        const currentCount = target.favoriteCount || 0;
+        const nextCount = isAdded ? currentCount + 1 : Math.max(0, currentCount - 1);
+
+        // Optimistically update local state so UI updates instantly
+        setPrompts(prev => prev.map(p => p.id === id ? { ...p, favoriteCount: nextCount } : p));
+
+        // Save to Supabase
+        await supabase
+          .from("prompts")
+          .update({ favorite_count: nextCount })
+          .eq("id", id);
+      }
+    } catch (err) {
+      console.error("Failed to update favorite count:", err);
+    }
+  };
+
   const resetData = async () => {
     try {
-      // Clear follower local state
-      localStorage.removeItem("pixora_instagram_followed");
+      if (confirm("WARNING: This will completely delete all custom records from your Supabase cloud database and reset it to stock default templates. Continue?")) {
+        // Clear prompts
+        const { error: pDelErr } = await supabase.from("prompts").delete().neq("title", "");
+        // Clear categories
+        const { error: cDelErr } = await supabase.from("categories").delete().neq("name", "");
 
-      // Verify if admin session is active
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        alert("Authentication Required: Please log in to the Creator Console to perform a database reset.");
-        return;
-      }
+        if (pDelErr || cDelErr) throw new Error("Failed to delete existing database tables.");
 
-      if (confirm("WARNING: This will wipe your live cloud tables and re-seed with default Pixora prompts. Proceed?")) {
-        // Delete all live prompts and categories
-        await supabase.from("prompts").delete().neq("title", "");
-        await supabase.from("categories").delete().neq("name", "");
-
-        // Reseed default categories
+        // Reseed categories
         for (const cat of DEFAULT_CATEGORIES) {
           await supabase.from("categories").insert([{
             id: cat.id,
@@ -212,7 +265,7 @@ export function PixoraProvider({ children }: { children: ReactNode }) {
           }]);
         }
 
-        // Reseed default prompts
+        // Reseed prompts
         for (const prompt of DEFAULT_PROMPTS) {
           await supabase.from("prompts").insert([{
             title: prompt.title,
@@ -224,7 +277,7 @@ export function PixoraProvider({ children }: { children: ReactNode }) {
           }]);
         }
 
-        alert("Cloud database successfully re-seeded!");
+        showToast("Database successfully re-seeded!");
         await loadData();
       }
     } catch (err) {
@@ -243,14 +296,35 @@ export function PixoraProvider({ children }: { children: ReactNode }) {
         addCategory,
         deletePrompt,
         deleteCategory,
+        incrementCopyCount,
+        updateFavoriteCount,
+        showToast,
         resetData,
         refreshDatabase: loadData
       }}
     >
       {children}
+
+      {/* Global Slide-up Toast Notification */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 40, x: "-50%" }}
+            animate={{ opacity: 1, y: 0, x: "-50%" }}
+            exit={{ opacity: 0, y: 15, x: "-50%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 350 }}
+            className="fixed bottom-8 left-1/2 z-[100000] flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-[#0F0F13]/95 border border-brand-accent/30 text-white shadow-accent backdrop-blur-md max-w-sm w-[90%] text-xs font-mono select-none"
+          >
+            <Sparkles size={14} className="text-brand-accent flex-shrink-0 animate-pulse" />
+            <span className="flex-1 truncate">{toastMessage}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </PixoraContext.Provider>
   );
 }
+
+export default PixoraContext;
 
 export function usePixora() {
   const context = useContext(PixoraContext);

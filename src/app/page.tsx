@@ -6,6 +6,7 @@ import Marquee from "@/components/Marquee";
 import FeatureGrid from "@/components/FeatureGrid";
 import Showcase from "@/components/Showcase";
 import HowItWorks from "@/components/HowItWorks";
+import PromptBuilder from "@/components/PromptBuilder";
 import PromptLibrary from "@/components/PromptLibrary";
 import Testimonials from "@/components/Testimonials";
 import Footer from "@/components/Footer";
@@ -28,6 +29,7 @@ export default function Home() {
         <FeatureGrid />
         <Showcase />
         <HowItWorks />
+        <PromptBuilder />
         <PromptLibrary />
         <Testimonials />
       </main>

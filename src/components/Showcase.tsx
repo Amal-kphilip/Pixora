@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Sparkles, Paintbrush } from "lucide-react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 interface Preset {
   id: string;
@@ -124,10 +125,13 @@ export default function Showcase() {
               {/* Image Frame */}
               <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden bg-[#0A0A0C]">
                 {/* Showcase Image */}
-                <img
-                  src="./images/showcase_base.png"
+                <Image
+                  src="/images/showcase_base.png"
                   alt="Preset base street"
-                  className={`w-full h-full object-cover transition-all duration-1000 ease-expo-out ${presets[currentIdx].filterClass}`}
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 800px"
+                  className={`object-cover transition-all duration-1000 ease-expo-out ${presets[currentIdx].filterClass}`}
                 />
                 
                 {/* Blend Overlay layer */}

@@ -5,6 +5,7 @@ import { ArrowUpRight, Lock, X, Copy, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLenis } from "@studio-freight/react-lenis";
 import { usePixora } from "@/context/PixoraContext";
+import Image from "next/image";
 import { CategoryItem } from "@/data/defaultData";
 
 export default function FeatureGrid() {
@@ -145,22 +146,26 @@ export default function FeatureGrid() {
                 {/* Before/After Image Wrap */}
                 <div className="relative w-full h-[220px] rounded-2xl overflow-hidden mb-6 bg-[#0E0E12]">
                   {/* Base Original (Before) Image */}
-                  <img
+                  <Image
                     src={cat.beforeImage || cat.image}
                     alt={`${cat.name} Before`}
                     style={{ filter: cat.beforeFilter }}
-                    className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-expo-out ${
+                    fill
+                    sizes="(max-width: 768px) 100vw, 400px"
+                    className={`object-cover transition-all duration-700 ease-expo-out ${
                       isToggled
                         ? "opacity-0 scale-95"
                         : "group-hover:opacity-0 group-hover:scale-95"
                     }`}
                   />
                   {/* Graded (After) Image overlay */}
-                  <img
+                  <Image
                     src={cat.afterImage || cat.image}
                     alt={`${cat.name} After`}
                     style={{ filter: cat.afterFilter }}
-                    className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-expo-out ${
+                    fill
+                    sizes="(max-width: 768px) 100vw, 400px"
+                    className={`object-cover transition-all duration-700 ease-expo-out ${
                       isToggled
                         ? "opacity-100 scale-100"
                         : "opacity-0 scale-105 group-hover:opacity-100 group-hover:scale-100"

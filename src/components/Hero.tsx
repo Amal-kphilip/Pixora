@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect } from "react";
 import { ArrowRight, Play, Eye } from "lucide-react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import Image from "next/image";
 
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -233,10 +234,12 @@ export default function Hero() {
                 }}
                 className="absolute top-[10%] left-0 w-[220px] h-[280px] rounded-3xl overflow-hidden glass shadow-xl border border-white/10 p-3 hover:border-brand-accent/30 transition-colors duration-300"
               >
-                <img
+                <Image
                   src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=500&q=80"
                   alt="Cinematic Landscape"
-                  className="w-full h-full object-cover rounded-2xl filter saturate-[1.4] contrast-[1.1]"
+                  fill
+                  sizes="220px"
+                  className="object-cover rounded-2xl filter saturate-[1.4] contrast-[1.1]"
                 />
                 <div className="absolute bottom-6 left-6 right-6 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/5 text-[10px] font-mono text-white/80">
                   LOOK: MOODY GREEN
@@ -298,10 +301,12 @@ export default function Hero() {
                 }}
                 className="absolute top-[40%] right-[-5%] w-[200px] h-[250px] rounded-3xl overflow-hidden glass shadow-2xl border border-white/10 p-3 hover:border-brand-accent/30 transition-colors duration-300 z-30"
               >
-                <img
+                <Image
                   src="https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=500&q=80"
                   alt="Neon Street Look"
-                  className="w-full h-full object-cover rounded-2xl filter saturate-[1.8] hue-rotate-15 contrast-[1.25]"
+                  fill
+                  sizes="200px"
+                  className="object-cover rounded-2xl filter saturate-[1.8] hue-rotate-15 contrast-[1.25]"
                 />
                 <div className="absolute bottom-6 left-6 right-6 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/5 text-[10px] font-mono text-white/80">
                   LOOK: CYBER TEAL
