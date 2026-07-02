@@ -8,7 +8,7 @@ import { useLenis } from "@studio-freight/react-lenis";
 
 export default function CreatorConsole() {
   const lenis = useLenis();
-  const { categories, addPrompt, addCategory, resetData } = usePixora();
+  const { categories, prompts, addPrompt, addCategory, resetData } = usePixora();
   const [isOpen, setIsOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [activeTab, setActiveTab] = useState<"prompt" | "category">("prompt");
@@ -125,6 +125,43 @@ export default function CreatorConsole() {
     setCatDesc("");
     setCatImage("");
     alert("Category added successfully!");
+  };
+
+  const handleExportDatabase = () => {
+    const fileContent = `export interface PromptItem {
+  id: string;
+  title: string;
+  category: string;
+  tool: "Midjourney" | "Lightroom" | "Photoshop";
+  promptText: string;
+  image: string;
+  complexity: "Basic" | "Advanced" | "Pro";
+}
+
+export interface CategoryItem {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  beforeFilter: string;
+  afterFilter: string;
+  prompts: { title: string; text: string }[];
+}
+
+export const DEFAULT_CATEGORIES: CategoryItem[] = ${JSON.stringify(categories, null, 2)};
+
+export const DEFAULT_PROMPTS: PromptItem[] = ${JSON.stringify(prompts, null, 2)};
+`;
+
+    const blob = new Blob([fileContent], { type: "text/typescript" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "defaultData.ts";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   if (!isVisible) return null;
@@ -386,8 +423,17 @@ export default function CreatorConsole() {
               <div className="mt-8 pt-4 border-t border-white/5 flex-shrink-0 flex flex-col space-y-3">
                 <span className="text-[9px] font-mono text-white/30">ADMIN CONTROLS</span>
                 <button
+                  onClick={handleExportDatabase}
+                  className="flex items-center justify-center gap-1.5 py-3 rounded-xl bg-brand-accent/10 border border-brand-accent/20 text-brand-accent text-xs font-bold hover:bg-brand-accent hover:text-brand-bg hover:border-brand-accent transition-all duration-300"
+                >
+                  <svg className="w-[14px] h-[14px] fill-none stroke-current" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                  </svg>
+                  Export Database for GitHub / Vercel
+                </button>
+                <button
                   onClick={() => {
-                    if (confirm("Are you sure you want to clear all custom additions and reset back to default Aether data?")) {
+                    if (confirm("Are you sure you want to clear all custom additions and reset back to default data?")) {
                       resetData();
                     }
                   }}
