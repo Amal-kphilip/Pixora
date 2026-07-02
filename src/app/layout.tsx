@@ -24,7 +24,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "PIXORA // Cinematic AI Prompts for Photo Grading & Editing",
+  title: "PIXORA",
   description: "Curated, production-tested prompt formulas for Midjourney, Lightroom AI, and Photoshop. Generate gorgeous film looks, moody tones, and studio lighting in seconds.",
 };
 
