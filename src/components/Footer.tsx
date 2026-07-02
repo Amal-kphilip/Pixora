@@ -196,9 +196,16 @@ export default function Footer() {
 
         {/* Bottom row: copyright + back to top */}
         <div className="flex flex-col sm:flex-row items-center justify-between pt-8 gap-4">
-          <p className="text-[10px] font-mono text-white/30 tracking-wider">
-            &copy; {currentYear} PIXORA PROMPTS INC. ALL RIGHTS RESERVED.
-          </p>
+          <div className="flex items-center gap-2 text-[10px] font-mono text-white/30 tracking-wider">
+            <span>&copy; {currentYear} PIXORA PROMPTS INC. ALL RIGHTS RESERVED.</span>
+            <span>•</span>
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent("toggle-creator-console"))}
+              className="hover:text-brand-accent transition-colors focus:outline-none"
+            >
+              STUDIO
+            </button>
+          </div>
           
           <button
             onClick={handleScrollToTop}

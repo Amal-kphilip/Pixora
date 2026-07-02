@@ -65,14 +65,16 @@ export default function CreatorConsole() {
   // Keyboard shortcut listener (Ctrl + Alt + C) and Query param check
   useEffect(() => {
     const handleToggle = () => {
-      setIsVisible((prev) => !prev);
+      setIsVisible(true);
+      setIsOpen(true);
     };
 
     window.addEventListener("toggle-creator-console", handleToggle);
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.altKey && e.key.toLowerCase() === "c") {
-        setIsVisible((prev) => !prev);
+        setIsVisible(true);
+        setIsOpen(true);
       }
     };
 
