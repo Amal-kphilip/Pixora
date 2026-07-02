@@ -93,7 +93,7 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           {/* Logo */}
           <a
-            href="#"
+            href="/"
             className="flex items-center space-x-2 text-xl font-bold tracking-tight text-white font-display"
           >
             <span 

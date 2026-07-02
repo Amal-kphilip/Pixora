@@ -95,7 +95,7 @@ export default function Footer() {
           {/* Brand Info */}
           <div className="col-span-2 flex flex-col space-y-6">
             <a
-              href="#"
+              href="/"
               className="flex items-center space-x-2 text-xl font-bold tracking-tight text-white font-display"
             >
               <span 
