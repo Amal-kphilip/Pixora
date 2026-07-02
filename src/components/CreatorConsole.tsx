@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sliders, X, Plus, Sparkles, Layers, FileText, Upload, LogIn, LogOut, Loader2 } from "lucide-react";
+import { Sliders, X, Plus, Sparkles, Layers, FileText, Upload, LogIn, LogOut, Loader2, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePixora } from "@/context/PixoraContext";
 import { useLenis } from "@studio-freight/react-lenis";
@@ -50,7 +50,7 @@ const compressImage = (file: File, maxW = 800, maxH = 800): Promise<string> => {
 
 export default function CreatorConsole() {
   const lenis = useLenis();
-  const { categories, addPrompt, addCategory } = usePixora();
+  const { categories, prompts, addPrompt, addCategory, deletePrompt, deleteCategory } = usePixora();
   const [isOpen, setIsOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [activeTab, setActiveTab] = useState<"prompt" | "category">("prompt");
@@ -293,8 +293,6 @@ export default function CreatorConsole() {
     }
   };
 
-
-
   if (!isVisible) return null;
 
   return (
@@ -394,335 +392,415 @@ export default function CreatorConsole() {
                   {/* Form fields wrapper (Scrollable) */}
                   <div 
                     data-lenis-prevent
-                    className="flex-1 overflow-y-auto pr-1 min-h-0 pb-12"
+                    className="flex-1 overflow-y-auto pr-1 min-h-0 pb-12 space-y-8"
                   >
                     {activeTab === "prompt" ? (
-                      /* Prompt form */
-                      <form onSubmit={handlePromptSubmit} className="space-y-4">
-                        {/* Title */}
-                        <div className="flex flex-col space-y-1">
-                          <label className="text-[10px] font-mono text-white/50">PROMPT TITLE</label>
-                          <input
-                            type="text"
-                            required
-                            placeholder="e.g. Vintage Sunset Kodak"
-                            value={promptTitle}
-                            onChange={(e) => setPromptTitle(e.target.value)}
-                            className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none placeholder-white/20"
-                          />
-                        </div>
+                      /* Prompt tab */
+                      <div className="space-y-8">
+                        <form onSubmit={handlePromptSubmit} className="space-y-4">
+                          {/* Title */}
+                          <div className="flex flex-col space-y-1">
+                            <label className="text-[10px] font-mono text-white/50">PROMPT TITLE</label>
+                            <input
+                              type="text"
+                              required
+                              placeholder="e.g. Vintage Sunset Kodak"
+                              value={promptTitle}
+                              onChange={(e) => setPromptTitle(e.target.value)}
+                              className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none placeholder-white/20"
+                            />
+                          </div>
 
-                        {/* Category select */}
-                        <div className="flex flex-col space-y-1">
-                          <label className="text-[10px] font-mono text-white/50">CATEGORY</label>
-                          <select
-                            required
-                            value={promptCategory}
-                            onChange={(e) => setPromptCategory(e.target.value)}
-                            className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none"
+                          {/* Category select */}
+                          <div className="flex flex-col space-y-1">
+                            <label className="text-[10px] font-mono text-white/50">CATEGORY</label>
+                            <select
+                              required
+                              value={promptCategory}
+                              onChange={(e) => setPromptCategory(e.target.value)}
+                              className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none"
+                            >
+                              <option value="" className="bg-[#0F0F13]">Select Category</option>
+                              {categories.map((c) => (
+                                <option key={c.id} value={c.name} className="bg-[#0F0F13]">
+                                  {c.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* Tool & Complexity Row */}
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col space-y-1">
+                              <label className="text-[10px] font-mono text-white/50">ENGINE / TOOL</label>
+                              <select
+                                value={promptTool}
+                                onChange={(e) => setPromptTool(e.target.value as "Midjourney" | "Lightroom" | "Photoshop")}
+                                className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none"
+                              >
+                                <option value="Midjourney" className="bg-[#0F0F13]">Midjourney</option>
+                                <option value="Lightroom" className="bg-[#0F0F13]">Lightroom</option>
+                                <option value="Photoshop" className="bg-[#0F0F13]">Photoshop</option>
+                              </select>
+                            </div>
+                            <div className="flex flex-col space-y-1">
+                              <label className="text-[10px] font-mono text-white/50">COMPLEXITY</label>
+                              <select
+                                value={promptComplexity}
+                                onChange={(e) => setPromptComplexity(e.target.value as "Basic" | "Advanced" | "Pro")}
+                                className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none"
+                              >
+                                <option value="Basic" className="bg-[#0F0F13]">Basic</option>
+                                <option value="Advanced" className="bg-[#0F0F13]">Advanced</option>
+                                <option value="Pro" className="bg-[#0F0F13]">Pro</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          {/* Prompt image (File or URL) */}
+                          <div className="flex flex-col space-y-2">
+                            <label className="text-[10px] font-mono text-white/50">PROMPT IMAGE</label>
+                            <div className="flex items-center gap-3">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                id="prompt-img-file"
+                                className="hidden"
+                                onChange={(e) => handleFileChange(e, setPromptImage)}
+                              />
+                              <label
+                                htmlFor="prompt-img-file"
+                                className="flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white text-xs font-semibold cursor-pointer transition-all duration-300 flex-shrink-0"
+                              >
+                                <Upload size={13} />
+                                Choose File
+                              </label>
+                              <input
+                                type="url"
+                                placeholder="Or paste direct image URL"
+                                value={promptImage.startsWith("data:") ? "" : promptImage}
+                                onChange={(e) => setPromptImage(e.target.value)}
+                                className="flex-1 px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none placeholder-white/20"
+                              />
+                            </div>
+                            {promptImage && (
+                              <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-white/10 mt-1 group">
+                                <img src={promptImage} className="w-full h-full object-cover" alt="preview" />
+                                <button
+                                  type="button"
+                                  onClick={() => setPromptImage("")}
+                                  className="absolute top-1 right-1 p-0.5 rounded bg-black/70 text-white/60 hover:text-white transition-colors"
+                                >
+                                  <X size={10} />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Prompt Text */}
+                          <div className="flex flex-col space-y-1">
+                            <label className="text-[10px] font-mono text-white/50">AI PROMPT FORMULA</label>
+                            <textarea
+                              required
+                              rows={4}
+                              placeholder="e.g. Editorial fashion photography, kodak warm grading..."
+                              value={promptText}
+                              onChange={(e) => setPromptText(e.target.value)}
+                              className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none resize-none placeholder-white/20"
+                            />
+                          </div>
+
+                          <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-brand-accent text-brand-bg font-bold text-xs tracking-wider shadow-accent hover:shadow-accent-strong transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            <option value="" className="bg-[#0F0F13]">Select Category</option>
-                            {categories.map((c) => (
-                              <option key={c.id} value={c.name} className="bg-[#0F0F13]">
-                                {c.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
+                            {isSubmitting ? (
+                              <>
+                                <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" />
+                                Uploading & Saving...
+                              </>
+                            ) : (
+                              <>
+                                <Plus size={14} /> Add Prompt to Database
+                              </>
+                            )}
+                          </button>
+                        </form>
 
-                        {/* Tool & Complexity Row */}
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="flex flex-col space-y-1">
-                            <label className="text-[10px] font-mono text-white/50">ENGINE / TOOL</label>
-                            <select
-                              value={promptTool}
-                              onChange={(e) => setPromptTool(e.target.value as "Midjourney" | "Lightroom" | "Photoshop")}
-                              className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none"
-                            >
-                              <option value="Midjourney" className="bg-[#0F0F13]">Midjourney</option>
-                              <option value="Lightroom" className="bg-[#0F0F13]">Lightroom</option>
-                              <option value="Photoshop" className="bg-[#0F0F13]">Photoshop</option>
-                            </select>
+                        {/* Manage Prompts List Section */}
+                        <div className="pt-6 border-t border-white/5 space-y-3">
+                          <span className="text-[9px] font-mono text-white/30 uppercase tracking-wider block font-bold">
+                            Manage Prompts ({prompts.length})
+                          </span>
+                          <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+                            {prompts.length === 0 ? (
+                              <p className="text-[10px] text-white/35 italic text-center py-4">No prompts in cloud database.</p>
+                            ) : (
+                              prompts.map((p) => (
+                                <div 
+                                  key={p.id}
+                                  className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5"
+                                >
+                                  <div className="flex items-center gap-3 min-w-0">
+                                    <img src={p.image} className="w-8 h-8 rounded-lg object-cover flex-shrink-0" alt="preview" />
+                                    <div className="min-w-0">
+                                      <p className="text-xs font-semibold text-white truncate">{p.title}</p>
+                                      <p className="text-[9px] font-mono text-white/30 uppercase truncate">{p.category} • {p.tool}</p>
+                                    </div>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      if (confirm(`Are you sure you want to delete the prompt "${p.title}"?`)) {
+                                        deletePrompt(p.id);
+                                      }
+                                    }}
+                                    className="p-1.5 rounded-lg hover:bg-red-500/10 text-white/30 hover:text-red-400 transition-colors"
+                                  >
+                                    <Trash2 size={13} />
+                                  </button>
+                                </div>
+                              ))
+                            )}
                           </div>
-                          <div className="flex flex-col space-y-1">
-                            <label className="text-[10px] font-mono text-white/50">COMPLEXITY</label>
-                            <select
-                              value={promptComplexity}
-                              onChange={(e) => setPromptComplexity(e.target.value as "Basic" | "Advanced" | "Pro")}
-                              className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none"
-                            >
-                              <option value="Basic" className="bg-[#0F0F13]">Basic</option>
-                              <option value="Advanced" className="bg-[#0F0F13]">Advanced</option>
-                              <option value="Pro" className="bg-[#0F0F13]">Pro</option>
-                            </select>
-                          </div>
                         </div>
-
-                        {/* Prompt image (File or URL) */}
-                        <div className="flex flex-col space-y-2">
-                          <label className="text-[10px] font-mono text-white/50">PROMPT IMAGE</label>
-                          <div className="flex items-center gap-3">
-                            <input
-                              type="file"
-                              accept="image/*"
-                              id="prompt-img-file"
-                              className="hidden"
-                              onChange={(e) => handleFileChange(e, setPromptImage)}
-                            />
-                            <label
-                              htmlFor="prompt-img-file"
-                              className="flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white text-xs font-semibold cursor-pointer transition-all duration-300 flex-shrink-0"
-                            >
-                              <Upload size={13} />
-                              Choose File
-                            </label>
-                            <input
-                              type="url"
-                              placeholder="Or paste direct image URL"
-                              value={promptImage.startsWith("data:") ? "" : promptImage}
-                              onChange={(e) => setPromptImage(e.target.value)}
-                              className="flex-1 px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none placeholder-white/20"
-                            />
-                          </div>
-                          {promptImage && (
-                            <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-white/10 mt-1 group">
-                              <img src={promptImage} className="w-full h-full object-cover" alt="preview" />
-                              <button
-                                type="button"
-                                onClick={() => setPromptImage("")}
-                                className="absolute top-1 right-1 p-0.5 rounded bg-black/70 text-white/60 hover:text-white transition-colors"
-                              >
-                                <X size={10} />
-                              </button>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Prompt Text */}
-                        <div className="flex flex-col space-y-1">
-                          <label className="text-[10px] font-mono text-white/50">AI PROMPT FORMULA</label>
-                          <textarea
-                            required
-                            rows={4}
-                            placeholder="e.g. Editorial fashion photography, kodak warm grading..."
-                            value={promptText}
-                            onChange={(e) => setPromptText(e.target.value)}
-                            className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none resize-none placeholder-white/20"
-                          />
-                        </div>
-
-                        <button
-                          type="submit"
-                          disabled={isSubmitting}
-                          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-brand-accent text-brand-bg font-bold text-xs tracking-wider shadow-accent hover:shadow-accent-strong transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {isSubmitting ? (
-                            <>
-                              <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" />
-                              Uploading & Saving...
-                            </>
-                          ) : (
-                            <>
-                              <Plus size={14} /> Add Prompt to Database
-                            </>
-                          )}
-                        </button>
-                      </form>
+                      </div>
                     ) : (
-                      /* Category form */
-                      <form onSubmit={handleCategorySubmit} className="space-y-4">
-                        {/* Name */}
-                        <div className="flex flex-col space-y-1">
-                          <label className="text-[10px] font-mono text-white/50">CATEGORY NAME</label>
-                          <input
-                            type="text"
-                            required
-                            placeholder="e.g. Street Noir"
-                            value={catName}
-                            onChange={(e) => setCatName(e.target.value)}
-                            className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none placeholder-white/20"
-                          />
-                        </div>
-
-                        {/* Category Cover Image */}
-                        <div className="flex flex-col space-y-2">
-                          <label className="text-[10px] font-mono text-white/50">COVER IMAGE (OPTIONAL)</label>
-                          <div className="flex items-center gap-3">
+                      /* Category tab */
+                      <div className="space-y-8">
+                        <form onSubmit={handleCategorySubmit} className="space-y-4">
+                          {/* Name */}
+                          <div className="flex flex-col space-y-1">
+                            <label className="text-[10px] font-mono text-white/50">CATEGORY NAME</label>
                             <input
-                              type="file"
-                              accept="image/*"
-                              id="cat-cover-file"
-                              className="hidden"
-                              onChange={(e) => handleFileChange(e, setCatImage)}
-                            />
-                            <label
-                              htmlFor="cat-cover-file"
-                              className="flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white text-xs font-semibold cursor-pointer transition-all duration-300 flex-shrink-0"
-                            >
-                              <Upload size={13} />
-                              Choose File
-                            </label>
-                            <input
-                              type="url"
-                              placeholder="Or paste direct cover URL"
-                              value={catImage.startsWith("data:") ? "" : catImage}
-                              onChange={(e) => setCatImage(e.target.value)}
-                              className="flex-1 px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none placeholder-white/20"
+                              type="text"
+                              required
+                              placeholder="e.g. Street Noir"
+                              value={catName}
+                              onChange={(e) => setCatName(e.target.value)}
+                              className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none placeholder-white/20"
                             />
                           </div>
-                          {catImage && (
-                            <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-white/10 mt-1">
-                              <img src={catImage} className="w-full h-full object-cover" alt="preview" />
-                              <button
-                                type="button"
-                                onClick={() => setCatImage("")}
-                                className="absolute top-1 right-1 p-0.5 rounded bg-black/70 text-white/60 hover:text-white transition-colors"
+
+                          {/* Category Cover Image */}
+                          <div className="flex flex-col space-y-2">
+                            <label className="text-[10px] font-mono text-white/50">COVER IMAGE (OPTIONAL)</label>
+                            <div className="flex items-center gap-3">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                id="cat-cover-file"
+                                className="hidden"
+                                onChange={(e) => handleFileChange(e, setCatImage)}
+                              />
+                              <label
+                                htmlFor="cat-cover-file"
+                                className="flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white text-xs font-semibold cursor-pointer transition-all duration-300 flex-shrink-0"
                               >
-                                <X size={10} />
-                              </button>
+                                <Upload size={13} />
+                                Choose File
+                              </label>
+                              <input
+                                type="url"
+                                placeholder="Or paste direct cover URL"
+                                value={catImage.startsWith("data:") ? "" : catImage}
+                                onChange={(e) => setCatImage(e.target.value)}
+                                className="flex-1 px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none placeholder-white/20"
+                              />
                             </div>
-                          )}
-                        </div>
-
-                        {/* Before / After Images (File or URL) */}
-                        <div className="flex flex-col space-y-3">
-                          <span className="text-[10px] font-mono text-white/50 tracking-wider">BEFORE / AFTER IMAGE PRESETS</span>
-                          
-                          <div className="grid grid-cols-1 gap-4">
-                            {/* Before Image */}
-                            <div className="flex flex-col space-y-2 p-3 rounded-2xl bg-white/[0.02] border border-white/5">
-                              <label className="text-[9px] font-mono text-white/40">BEFORE IMAGE</label>
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  id="cat-before-file"
-                                  className="hidden"
-                                  onChange={(e) => handleFileChange(e, setCatBeforeImage)}
-                                />
-                                <label
-                                  htmlFor="cat-before-file"
-                                  className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white text-xs font-semibold cursor-pointer transition-all duration-300 flex-shrink-0"
+                            {catImage && (
+                              <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-white/10 mt-1">
+                                <img src={catImage} className="w-full h-full object-cover" alt="preview" />
+                                <button
+                                  type="button"
+                                  onClick={() => setCatImage("")}
+                                  className="absolute top-1 right-1 p-0.5 rounded bg-black/70 text-white/60 hover:text-white transition-colors"
                                 >
-                                  <Upload size={11} />
-                                  File
-                                </label>
-                                <input
-                                  type="url"
-                                  placeholder="Or image URL"
-                                  value={catBeforeImage.startsWith("data:") ? "" : catBeforeImage}
-                                  onChange={(e) => setCatBeforeImage(e.target.value)}
-                                  className="flex-1 px-3 py-2 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none placeholder-white/20"
-                                />
+                                  <X size={10} />
+                                </button>
                               </div>
-                              {catBeforeImage && (
-                                <div className="relative w-12 h-12 rounded-lg overflow-hidden border border-white/10 mt-1">
-                                  <img src={catBeforeImage} className="w-full h-full object-cover" alt="preview" />
-                                  <button
-                                    type="button"
-                                    onClick={() => setCatBeforeImage("")}
-                                    className="absolute top-0.5 right-0.5 p-0.5 rounded bg-black/70 text-white/60 hover:text-white transition-colors"
-                                  >
-                                    <X size={8} />
-                                  </button>
-                                </div>
-                              )}
-                            </div>
+                            )}
+                          </div>
 
-                            {/* After Image */}
-                            <div className="flex flex-col space-y-2 p-3 rounded-2xl bg-white/[0.02] border border-white/5">
-                              <label className="text-[9px] font-mono text-white/40">AFTER IMAGE</label>
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  id="cat-after-file"
-                                  className="hidden"
-                                  onChange={(e) => handleFileChange(e, setCatAfterImage)}
-                                />
-                                <label
-                                  htmlFor="cat-after-file"
-                                  className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white text-xs font-semibold cursor-pointer transition-all duration-300 flex-shrink-0"
-                                >
-                                  <Upload size={11} />
-                                  File
-                                </label>
-                                <input
-                                  type="url"
-                                  placeholder="Or image URL"
-                                  value={catAfterImage.startsWith("data:") ? "" : catAfterImage}
-                                  onChange={(e) => setCatAfterImage(e.target.value)}
-                                  className="flex-1 px-3 py-2 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none placeholder-white/20"
-                                />
-                              </div>
-                              {catAfterImage && (
-                                <div className="relative w-12 h-12 rounded-lg overflow-hidden border border-white/10 mt-1">
-                                  <img src={catAfterImage} className="w-full h-full object-cover" alt="preview" />
-                                  <button
-                                    type="button"
-                                    onClick={() => setCatAfterImage("")}
-                                    className="absolute top-0.5 right-0.5 p-0.5 rounded bg-black/70 text-white/60 hover:text-white transition-colors"
+                          {/* Before / After Images (File or URL) */}
+                          <div className="flex flex-col space-y-3">
+                            <span className="text-[10px] font-mono text-white/50 tracking-wider">BEFORE / AFTER IMAGE PRESETS</span>
+                            
+                            <div className="grid grid-cols-1 gap-4">
+                              {/* Before Image */}
+                              <div className="flex flex-col space-y-2 p-3 rounded-2xl bg-white/[0.02] border border-white/5">
+                                <label className="text-[9px] font-mono text-white/40">BEFORE IMAGE</label>
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    id="cat-before-file"
+                                    className="hidden"
+                                    onChange={(e) => handleFileChange(e, setCatBeforeImage)}
+                                  />
+                                  <label
+                                    htmlFor="cat-before-file"
+                                    className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white text-xs font-semibold cursor-pointer transition-all duration-300 flex-shrink-0"
                                   >
-                                    <X size={8} />
-                                  </button>
+                                    <Upload size={11} />
+                                    File
+                                  </label>
+                                  <input
+                                    type="url"
+                                    placeholder="Or image URL"
+                                    value={catBeforeImage.startsWith("data:") ? "" : catBeforeImage}
+                                    onChange={(e) => setCatBeforeImage(e.target.value)}
+                                    className="flex-1 px-3 py-2 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none placeholder-white/20"
+                                  />
                                 </div>
-                              )}
+                                {catBeforeImage && (
+                                  <div className="relative w-12 h-12 rounded-lg overflow-hidden border border-white/10 mt-1">
+                                    <img src={catBeforeImage} className="w-full h-full object-cover" alt="preview" />
+                                    <button
+                                      type="button"
+                                      onClick={() => setCatBeforeImage("")}
+                                      className="absolute top-0.5 right-0.5 p-0.5 rounded bg-black/70 text-white/60 hover:text-white transition-colors"
+                                    >
+                                      <X size={8} />
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* After Image */}
+                              <div className="flex flex-col space-y-2 p-3 rounded-2xl bg-white/[0.02] border border-white/5">
+                                <label className="text-[9px] font-mono text-white/40">AFTER IMAGE</label>
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    id="cat-after-file"
+                                    className="hidden"
+                                    onChange={(e) => handleFileChange(e, setCatAfterImage)}
+                                  />
+                                  <label
+                                    htmlFor="cat-after-file"
+                                    className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white text-xs font-semibold cursor-pointer transition-all duration-300 flex-shrink-0"
+                                  >
+                                    <Upload size={11} />
+                                    File
+                                  </label>
+                                  <input
+                                    type="url"
+                                    placeholder="Or image URL"
+                                    value={catAfterImage.startsWith("data:") ? "" : catAfterImage}
+                                    onChange={(e) => setCatAfterImage(e.target.value)}
+                                    className="flex-1 px-3 py-2 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none placeholder-white/20"
+                                  />
+                                </div>
+                                {catAfterImage && (
+                                  <div className="relative w-12 h-12 rounded-lg overflow-hidden border border-white/10 mt-1">
+                                    <img src={catAfterImage} className="w-full h-full object-cover" alt="preview" />
+                                    <button
+                                      type="button"
+                                      onClick={() => setCatAfterImage("")}
+                                      className="absolute top-0.5 right-0.5 p-0.5 rounded bg-black/70 text-white/60 hover:text-white transition-colors"
+                                    >
+                                      <X size={8} />
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        {/* Before / After Filters */}
-                        <div className="grid grid-cols-2 gap-4">
+                          {/* Before / After Filters */}
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col space-y-1">
+                              <label className="text-[10px] font-mono text-white/50">BEFORE FILTER (CSS)</label>
+                              <input
+                                type="text"
+                                value={catBefore}
+                                onChange={(e) => setCatBefore(e.target.value)}
+                                className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none font-mono"
+                              />
+                            </div>
+                            <div className="flex flex-col space-y-1">
+                              <label className="text-[10px] font-mono text-white/50">AFTER FILTER (CSS)</label>
+                              <input
+                                type="text"
+                                value={catAfter}
+                                onChange={(e) => setCatAfter(e.target.value)}
+                                className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none font-mono"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Description */}
                           <div className="flex flex-col space-y-1">
-                            <label className="text-[10px] font-mono text-white/50">BEFORE FILTER (CSS)</label>
-                            <input
-                              type="text"
-                              value={catBefore}
-                              onChange={(e) => setCatBefore(e.target.value)}
-                              className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none font-mono"
+                            <label className="text-[10px] font-mono text-white/50">DESCRIPTION</label>
+                            <textarea
+                              required
+                              rows={4}
+                              placeholder="Describe the aesthetic grading properties..."
+                              value={catDesc}
+                              onChange={(e) => setCatDesc(e.target.value)}
+                              className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none resize-none placeholder-white/20"
                             />
                           </div>
-                          <div className="flex flex-col space-y-1">
-                            <label className="text-[10px] font-mono text-white/50">AFTER FILTER (CSS)</label>
-                            <input
-                              type="text"
-                              value={catAfter}
-                              onChange={(e) => setCatAfter(e.target.value)}
-                              className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none font-mono"
-                            />
+
+                          <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-brand-accent text-brand-bg font-bold text-xs tracking-wider shadow-accent hover:shadow-accent-strong transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {isSubmitting ? (
+                              <>
+                                <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" />
+                                Uploading & Saving...
+                              </>
+                            ) : (
+                              <>
+                                <Plus size={14} /> Add Category to Database
+                              </>
+                            )}
+                          </button>
+                        </form>
+
+                        {/* Manage Categories List Section */}
+                        <div className="pt-6 border-t border-white/5 space-y-3">
+                          <span className="text-[9px] font-mono text-white/30 uppercase tracking-wider block font-bold">
+                            Manage Categories ({categories.length})
+                          </span>
+                          <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+                            {categories.length === 0 ? (
+                              <p className="text-[10px] text-white/35 italic text-center py-4">No categories in cloud database.</p>
+                            ) : (
+                              categories.map((c) => (
+                                <div 
+                                  key={c.id}
+                                  className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5"
+                                >
+                                  <div className="flex items-center gap-3 min-w-0">
+                                    <img src={c.image} className="w-8 h-8 rounded-lg object-cover flex-shrink-0" alt="preview" />
+                                    <div className="min-w-0">
+                                      <p className="text-xs font-semibold text-white truncate">{c.name}</p>
+                                      <p className="text-[9px] font-mono text-white/30 uppercase truncate">{c.description}</p>
+                                    </div>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      if (confirm(`WARNING: Deleting the category "${c.name}" will also delete all prompts belonging to it. Proceed?`)) {
+                                        deleteCategory(c.id);
+                                      }
+                                    }}
+                                    className="p-1.5 rounded-lg hover:bg-red-500/10 text-white/30 hover:text-red-400 transition-colors"
+                                  >
+                                    <Trash2 size={13} />
+                                  </button>
+                                </div>
+                              ))
+                            )}
                           </div>
                         </div>
-
-                        {/* Description */}
-                        <div className="flex flex-col space-y-1">
-                          <label className="text-[10px] font-mono text-white/50">DESCRIPTION</label>
-                          <textarea
-                            required
-                            rows={4}
-                            placeholder="Describe the aesthetic grading properties..."
-                            value={catDesc}
-                            onChange={(e) => setCatDesc(e.target.value)}
-                            className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none resize-none placeholder-white/20"
-                          />
-                        </div>
-
-                        <button
-                          type="submit"
-                          disabled={isSubmitting}
-                          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-brand-accent text-brand-bg font-bold text-xs tracking-wider shadow-accent hover:shadow-accent-strong transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {isSubmitting ? (
-                            <>
-                              <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" />
-                              Uploading & Saving...
-                            </>
-                          ) : (
-                            <>
-                              <Plus size={14} /> Add Category to Database
-                            </>
-                          )}
-                        </button>
-                      </form>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -788,8 +866,6 @@ export default function CreatorConsole() {
                   </form>
                 </div>
               )}
-
-
             </motion.div>
           </>
         )}

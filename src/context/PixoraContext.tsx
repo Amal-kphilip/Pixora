@@ -14,6 +14,8 @@ interface PixoraContextType {
   prompts: PromptItem[];
   addPrompt: (prompt: Omit<PromptItem, "id">) => Promise<void>;
   addCategory: (category: Omit<CategoryItem, "prompts">) => Promise<void>;
+  deletePrompt: (id: string) => Promise<void>;
+  deleteCategory: (id: string) => Promise<void>;
   resetData: () => Promise<void>;
   refreshDatabase: () => Promise<void>;
 }
@@ -141,7 +143,43 @@ export function PixoraProvider({ children }: { children: ReactNode }) {
       alert("Failed to insert category to live database: " + (err as Error).message);
     }
   };
+  const deletePrompt = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from("prompts")
+        .delete()
+        .eq("id", id);
 
+      if (error) throw error;
+      await loadData();
+    } catch (err) {
+      console.error("Failed to delete prompt from Supabase:", err);
+      alert("Failed to delete prompt: " + (err as Error).message);
+    }
+  };
+
+  const deleteCategory = async (id: string) => {
+    try {
+      const targetCat = categories.find((c) => c.id === id);
+      if (targetCat) {
+        await supabase
+          .from("prompts")
+          .delete()
+          .eq("category", targetCat.name);
+      }
+
+      const { error } = await supabase
+        .from("categories")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+      await loadData();
+    } catch (err) {
+      console.error("Failed to delete category from Supabase:", err);
+      alert("Failed to delete category: " + (err as Error).message);
+    }
+  };
   const resetData = async () => {
     try {
       // Clear follower local state
@@ -201,6 +239,8 @@ export function PixoraProvider({ children }: { children: ReactNode }) {
         prompts: isLoaded ? prompts : [],
         addPrompt,
         addCategory,
+        deletePrompt,
+        deleteCategory,
         resetData,
         refreshDatabase: loadData
       }}
