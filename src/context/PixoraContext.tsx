@@ -12,6 +12,7 @@ import { supabase } from "@/utils/supabaseClient";
 interface PixoraContextType {
   categories: CategoryItem[];
   prompts: PromptItem[];
+  isLoaded: boolean;
   addPrompt: (prompt: Omit<PromptItem, "id">) => Promise<void>;
   addCategory: (category: Omit<CategoryItem, "prompts">) => Promise<void>;
   deletePrompt: (id: string) => Promise<void>;
@@ -237,6 +238,7 @@ export function PixoraProvider({ children }: { children: ReactNode }) {
       value={{
         categories: isLoaded ? categories : [],
         prompts: isLoaded ? prompts : [],
+        isLoaded,
         addPrompt,
         addCategory,
         deletePrompt,
