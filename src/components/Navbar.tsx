@@ -1,20 +1,41 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Menu, X, ArrowRight } from "lucide-react";
+import { Menu, X, ArrowRight, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isOled, setIsOled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener("scroll", handleScroll);
+
+    // Initialize OLED mode from localStorage
+    const savedTheme = localStorage.getItem("pixora-theme");
+    if (savedTheme === "oled") {
+      setIsOled(true);
+      document.documentElement.classList.add("oled");
+    }
+
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const toggleOledMode = () => {
+    const nextOled = !isOled;
+    setIsOled(nextOled);
+    if (nextOled) {
+      document.documentElement.classList.add("oled");
+      localStorage.setItem("pixora-theme", "oled");
+    } else {
+      document.documentElement.classList.remove("oled");
+      localStorage.setItem("pixora-theme", "dark");
+    }
+  };
 
   const navLinks = [
     { name: "Prompts", href: "#library" },
@@ -98,28 +119,56 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* Desktop CTA */}
-          <div className="hidden md:flex items-center">
+          {/* Desktop CTA & Theme Toggle */}
+          <div className="hidden md:flex items-center gap-4">
+            {/* OLED Mode Toggle */}
+            <button
+              onClick={toggleOledMode}
+              className={`p-2 rounded-full border transition-all duration-300 transform active:scale-95 ${
+                isOled
+                  ? "bg-brand-accent/15 border-brand-accent/30 text-brand-accent shadow-accent"
+                  : "bg-white/5 border-white/10 text-white/50 hover:text-white"
+              }`}
+              title="Toggle OLED Black Mode"
+            >
+              <Moon size={14} className={isOled ? "fill-brand-accent" : ""} />
+            </button>
+
             <a
               href="#library"
               onClick={(e) => handleLinkClick(e, "#library")}
-              className="group relative px-6 py-2.5 rounded-full bg-brand-accent text-brand-bg text-sm font-semibold tracking-wide overflow-hidden shadow-accent hover:shadow-accent-strong transition-all duration-300 transform hover:scale-[1.03]"
+              className="group relative px-6 py-2 rounded-full bg-brand-accent text-brand-bg text-sm font-semibold tracking-wide overflow-hidden shadow-accent hover:shadow-accent-strong transition-all duration-300 transform hover:scale-[1.03]"
             >
               <span className="relative z-10 flex items-center gap-1.5">
                 Browse Library
-                <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
+                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
               </span>
             </a>
           </div>
 
           {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 text-white hover:text-brand-accent transition-colors focus:outline-none"
-            aria-label="Toggle menu"
-          >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          <div className="flex md:hidden items-center gap-3">
+            {/* OLED Mode Toggle for Mobile */}
+            <button
+              onClick={toggleOledMode}
+              className={`p-2 rounded-full border transition-all duration-300 ${
+                isOled
+                  ? "bg-brand-accent/15 border-brand-accent/30 text-brand-accent shadow-accent"
+                  : "bg-white/5 border-white/10 text-white/50"
+              }`}
+              title="Toggle OLED Black Mode"
+            >
+              <Moon size={14} className={isOled ? "fill-brand-accent" : ""} />
+            </button>
+            
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2 text-white hover:text-brand-accent transition-colors focus:outline-none"
+              aria-label="Toggle menu"
+            >
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
       </header>
 

@@ -95,3 +95,35 @@
   color: #0B0B0D;
 }
 
+/* OLED Mode overrides */
+html.oled,
+html.oled body,
+html.oled main,
+html.oled .bg-brand-bg,
+html.oled section,
+html.oled footer,
+html.oled #categories,
+html.oled #how-it-works,
+html.oled #library,
+html.oled .bg-\[\#070709\],
+html.oled .bg-\[\#0B0B0D\] {
+  background-color: #000000 !important;
+  background-image: none !important;
+}
+
+html.oled .glass {
+  background: rgba(0, 0, 0, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+html.oled .glass-navbar {
+  background: rgba(0, 0, 0, 0.9) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+html.oled .from-brand-bg {
+  --tw-gradient-from: #000000 !important;
+  --tw-gradient-to: rgba(0, 0, 0, 0) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+
