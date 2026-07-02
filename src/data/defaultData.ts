@@ -1,4 +1,3 @@
-
 export interface PromptItem {
   id: string;
   title: string;
@@ -138,7 +137,7 @@ export const DEFAULT_PROMPTS: PromptItem[] = [
   {
     id: "pr-1",
     title: "Golden Hour Cinematic Portrait",
-    category: "Cinematic",
+    category: "Cinematic Color Grading",
     tool: "Midjourney",
     promptText: "Close-up portrait of a model, warm key light, cinematic lighting, 35mm lens, golden hour haze, Kodak Portra 400 grading --ar 16:9 --v 6.0",
     image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=80",
@@ -147,7 +146,7 @@ export const DEFAULT_PROMPTS: PromptItem[] = [
   {
     id: "pr-2",
     title: "Stark Leica Monochrome",
-    category: "B&W",
+    category: "Black & White",
     tool: "Midjourney",
     promptText: "High contrast black and white street photography, moody night lighting, rainy pavement reflections, Leica M11 style monochrome --ar 16:9 --style raw",
     image: "https://images.unsplash.com/photo-1490730141103-6cac27aaab94?auto=format&fit=crop&w=500&q=80",
@@ -156,7 +155,7 @@ export const DEFAULT_PROMPTS: PromptItem[] = [
   {
     id: "pr-3",
     title: "Aesthetic Matte Film",
-    category: "Film",
+    category: "Vintage Film Emulation",
     tool: "Lightroom",
     promptText: "Vintage matte color grading preset: Lift shadows, mute highlights, warm desaturated color profile, grain injection size 25, roughness 30 --style vintage",
     image: "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=500&q=80",
@@ -165,7 +164,7 @@ export const DEFAULT_PROMPTS: PromptItem[] = [
   {
     id: "pr-4",
     title: "Cyberpunk Tokyo Neon",
-    category: "Cinematic",
+    category: "Cinematic Color Grading",
     tool: "Midjourney",
     promptText: "Tokyo street alleyway, rainy night, cyberpunk neon lights, electric magenta and cyan tint, highly saturated, cinematic reflections --ar 16:9 --v 6.0",
     image: "https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=500&q=80",
@@ -174,7 +173,7 @@ export const DEFAULT_PROMPTS: PromptItem[] = [
   {
     id: "pr-5",
     title: "Minimalist E-Commerce Product",
-    category: "Product",
+    category: "Product Photography",
     tool: "Photoshop",
     promptText: "Clean product shoot backdrop, soft overhead studio softbox light, minimalist white concrete pedestal, high detail key lights --v 6.0",
     image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80",
@@ -183,10 +182,37 @@ export const DEFAULT_PROMPTS: PromptItem[] = [
   {
     id: "pr-6",
     title: "Classic Editorial Headshot",
-    category: "Portrait",
+    category: "Portrait Retouching",
     tool: "Midjourney",
     promptText: "Studio editorial portrait, neutral gray backdrop, volumetric side lighting, Rembrandt light style, sharp eyes detail, Hasselblad medium format --ar 4:5",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=500&q=80",
     complexity: "Pro"
+  },
+  {
+    id: "pr-7",
+    title: "Kerala Monsoon Rainscape",
+    category: "Moody Film Looks",
+    tool: "Midjourney",
+    promptText: "Lush green Munnar tea gardens, Kerala, heavy monsoon rain downpour, dense fog covering the hills, winding wet roads, cinematic color grading --ar 16:9 --v 6.0",
+    image: "https://images.unsplash.com/photo-1596701062351-df1ff690f924?auto=format&fit=crop&w=500&q=80",
+    complexity: "Advanced"
+  },
+  {
+    id: "pr-8",
+    title: "Misty Mountain Trucking",
+    category: "Moody Film Looks",
+    tool: "Midjourney",
+    promptText: "Traditional Indian cargo truck driving through a steep foggy mountain pass, headlights cutting through thick mist, wet asphalt road, moody twilight, cinematic style --ar 16:9 --style raw",
+    image: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=500&q=80",
+    complexity: "Pro"
+  },
+  {
+    id: "pr-9",
+    title: "Monsoon Mist Lightroom Presets",
+    category: "Vintage Film Emulation",
+    tool: "Lightroom",
+    promptText: "Kerala monsoon color grading preset: Saturate forest greens, shift blues to dark cyan, lift shadows with heavy mist grain, soft highlights compression --style moody",
+    image: "https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?auto=format&fit=crop&w=500&q=80",
+    complexity: "Basic"
   }
 ];

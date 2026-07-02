@@ -22,6 +22,8 @@ export default function PromptBuilder() {
     { name: "Polaroid 600 (Vintage Instant Look)", value: "Polaroid 600 vintage instant photo, washed colors, retro borders, faded contrast" },
     { name: "Kodak Tri-X 400 (High Contrast B&W)", value: "monochrome, Kodak Tri-X 400 black and white film look, high grain, deep shadows" },
     { name: "Cinestill 800T (Night Halation Tones)", value: "Cinestill 800T night film look, red halation highlights, cool tungsten grading" },
+    { name: "Monsoon Deep Greens Saturation", value: "Kerala monsoon deep greens saturation profile, highly reflective wet leaf surfaces, rich tones" },
+    { name: "Misty Fog Faded Desaturation", value: "faded misty fog desaturated color wash, low contrast shadows, soft highlight roll-off" },
   ];
 
   const lightingAtmospheres = [
@@ -30,6 +32,8 @@ export default function PromptBuilder() {
     { name: "Studio Softbox (Clean Editorial)", value: "professional studio fashion lighting, 3-point softbox glow, clean diffuse shadows" },
     { name: "Cyberpunk Neon (Rain Reflected Tones)", value: "vibrant neon illumination, rainy wet pavement reflections, magenta and cyan highlights" },
     { name: "Dappled Sunlight (Natural Shadows)", value: "dappled sunlight filtering through tree leaves, organic leaf shadows, bright ambient light" },
+    { name: "Dense Monsoon Downpour (Misty Overlay)", value: "heavy monsoon rain downpour, overcast sky, water droplets on lens, soft volumetric mist" },
+    { name: "Misty Fog Twilight (Headlight Flare)", value: "dense foggy mist twilight ambiance, truck headlights cutting through thick fog, lens flare" },
   ];
 
   const subjects = [
@@ -38,6 +42,9 @@ export default function PromptBuilder() {
     { name: "Minimalist Cinematic Interior", value: "minimalist architectural interior, sun-drenched room" },
     { name: "Cyberpunk Alleyway Scene", value: "futuristic cyberpunk alleyway, steam rising" },
     { name: "Moody Wilderness Landscape", value: "misty forest mountains landscape, low fog" },
+    { name: "Kerala Monsoon Tea Plantation", value: "lush Kerala monsoon scene, Munnar tea plantation terraces, winding wet road" },
+    { name: "Misty Mountain Cargo Truck", value: "colorful traditional Indian cargo truck driving slowly through a steep foggy mountain pass" },
+    { name: "Foggy Silent Pine Forest", value: "dense fog and silent misty pine forest road, atmospheric dark mood" },
   ];
 
   const aspectRatios = [
