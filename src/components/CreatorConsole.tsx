@@ -1,10 +1,50 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sliders, X, Plus, Sparkles, RefreshCw, Layers, FileText } from "lucide-react";
+import { Sliders, X, Plus, Sparkles, RefreshCw, Layers, FileText, Upload } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePixora } from "@/context/PixoraContext";
 import { useLenis } from "@studio-freight/react-lenis";
+
+// Client-side image compression using HTML5 Canvas to prevent hitting localStorage 5MB limit
+const compressImage = (file: File, maxW = 800, maxH = 800): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxW) {
+            height = Math.round((height * maxW) / width);
+            width = maxW;
+          }
+        } else {
+          if (height > maxH) {
+            width = Math.round((width * maxH) / height);
+            height = maxH;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        // Output compressed JPEG at 0.75 quality (highly optimized file size)
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.75);
+        resolve(dataUrl);
+      };
+      img.onerror = (err) => reject(err);
+    };
+    reader.onerror = (err) => reject(err);
+  });
+};
 
 export default function CreatorConsole() {
   const lenis = useLenis();
@@ -77,6 +117,23 @@ export default function CreatorConsole() {
   const [catAfterImage, setCatAfterImage] = useState("");
   const [catBefore, setCatBefore] = useState("saturate(0.5) contrast(0.9)");
   const [catAfter, setCatAfter] = useState("saturate(1.4) contrast(1.15)");
+
+  // File Upload Handler
+  const handleFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setImageState: (val: string) => void
+  ) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const compressedBase64 = await compressImage(file);
+        setImageState(compressedBase64);
+      } catch (err) {
+        console.error("Image compression failed:", err);
+        alert("Failed to compress and load image file.");
+      }
+    }
+  };
 
   const handlePromptSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -322,16 +379,44 @@ export const DEFAULT_PROMPTS: PromptItem[] = ${JSON.stringify(prompts, null, 2)}
                         </div>
                       </div>
 
-                      {/* Prompt image URL */}
-                      <div className="flex flex-col space-y-1">
-                        <label className="text-[10px] font-mono text-white/50">IMAGE URL (OPTIONAL)</label>
-                        <input
-                          type="url"
-                          placeholder="Unsplash image link"
-                          value={promptImage}
-                          onChange={(e) => setPromptImage(e.target.value)}
-                          className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none placeholder-white/20"
-                        />
+                      {/* Prompt image (File or URL) */}
+                      <div className="flex flex-col space-y-2">
+                        <label className="text-[10px] font-mono text-white/50">PROMPT IMAGE</label>
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            id="prompt-img-file"
+                            className="hidden"
+                            onChange={(e) => handleFileChange(e, setPromptImage)}
+                          />
+                          <label
+                            htmlFor="prompt-img-file"
+                            className="flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white text-xs font-semibold cursor-pointer transition-all duration-300 flex-shrink-0"
+                          >
+                            <Upload size={13} />
+                            Choose File
+                          </label>
+                          <input
+                            type="url"
+                            placeholder="Or paste direct image URL"
+                            value={promptImage.startsWith("data:") ? "" : promptImage}
+                            onChange={(e) => setPromptImage(e.target.value)}
+                            className="flex-1 px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none placeholder-white/20"
+                          />
+                        </div>
+                        {promptImage && (
+                          <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-white/10 mt-1 group">
+                            <img src={promptImage} className="w-full h-full object-cover" alt="preview" />
+                            <button
+                              type="button"
+                              onClick={() => setPromptImage("")}
+                              className="absolute top-1 right-1 p-0.5 rounded bg-black/70 text-white/60 hover:text-white transition-colors"
+                            >
+                              <X size={10} />
+                            </button>
+                          </div>
+                        )}
                       </div>
 
                       {/* Prompt Text */}
@@ -370,39 +455,130 @@ export const DEFAULT_PROMPTS: PromptItem[] = ${JSON.stringify(prompts, null, 2)}
                         />
                       </div>
 
-                      {/* Category image URL */}
-                      <div className="flex flex-col space-y-1">
-                        <label className="text-[10px] font-mono text-white/50">COVER IMAGE URL (OPTIONAL)</label>
-                        <input
-                          type="url"
-                          placeholder="Unsplash cover link"
-                          value={catImage}
-                          onChange={(e) => setCatImage(e.target.value)}
-                          className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none placeholder-white/20"
-                        />
-                      </div>
-
-                      {/* Before / After Images (Optional) */}
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="flex flex-col space-y-1">
-                          <label className="text-[10px] font-mono text-white/50">BEFORE IMAGE URL (OPTIONAL)</label>
+                      {/* Category Cover Image */}
+                      <div className="flex flex-col space-y-2">
+                        <label className="text-[10px] font-mono text-white/50">COVER IMAGE (OPTIONAL)</label>
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            id="cat-cover-file"
+                            className="hidden"
+                            onChange={(e) => handleFileChange(e, setCatImage)}
+                          />
+                          <label
+                            htmlFor="cat-cover-file"
+                            className="flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white text-xs font-semibold cursor-pointer transition-all duration-300 flex-shrink-0"
+                          >
+                            <Upload size={13} />
+                            Choose File
+                          </label>
                           <input
                             type="url"
-                            placeholder="Raw before photo link"
-                            value={catBeforeImage}
-                            onChange={(e) => setCatBeforeImage(e.target.value)}
-                            className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none placeholder-white/20"
+                            placeholder="Or paste direct cover URL"
+                            value={catImage.startsWith("data:") ? "" : catImage}
+                            onChange={(e) => setCatImage(e.target.value)}
+                            className="flex-1 px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none placeholder-white/20"
                           />
                         </div>
-                        <div className="flex flex-col space-y-1">
-                          <label className="text-[10px] font-mono text-white/50">AFTER IMAGE URL (OPTIONAL)</label>
-                          <input
-                            type="url"
-                            placeholder="Graded after photo link"
-                            value={catAfterImage}
-                            onChange={(e) => setCatAfterImage(e.target.value)}
-                            className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none placeholder-white/20"
-                          />
+                        {catImage && (
+                          <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-white/10 mt-1">
+                            <img src={catImage} className="w-full h-full object-cover" alt="preview" />
+                            <button
+                              type="button"
+                              onClick={() => setCatImage("")}
+                              className="absolute top-1 right-1 p-0.5 rounded bg-black/70 text-white/60 hover:text-white transition-colors"
+                            >
+                              <X size={10} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Before / After Images (File or URL) */}
+                      <div className="flex flex-col space-y-3">
+                        <span className="text-[10px] font-mono text-white/50 tracking-wider">BEFORE / AFTER IMAGE PRESETS</span>
+                        
+                        <div className="grid grid-cols-1 gap-4">
+                          {/* Before Image */}
+                          <div className="flex flex-col space-y-2 p-3 rounded-2xl bg-white/[0.02] border border-white/5">
+                            <label className="text-[9px] font-mono text-white/40">BEFORE IMAGE</label>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                id="cat-before-file"
+                                className="hidden"
+                                onChange={(e) => handleFileChange(e, setCatBeforeImage)}
+                              />
+                              <label
+                                htmlFor="cat-before-file"
+                                className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white text-xs font-semibold cursor-pointer transition-all duration-300 flex-shrink-0"
+                              >
+                                <Upload size={11} />
+                                File
+                              </label>
+                              <input
+                                type="url"
+                                placeholder="Or image URL"
+                                value={catBeforeImage.startsWith("data:") ? "" : catBeforeImage}
+                                onChange={(e) => setCatBeforeImage(e.target.value)}
+                                className="flex-1 px-3 py-2 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none placeholder-white/20"
+                              />
+                            </div>
+                            {catBeforeImage && (
+                              <div className="relative w-12 h-12 rounded-lg overflow-hidden border border-white/10 mt-1">
+                                <img src={catBeforeImage} className="w-full h-full object-cover" alt="preview" />
+                                <button
+                                  type="button"
+                                  onClick={() => setCatBeforeImage("")}
+                                  className="absolute top-0.5 right-0.5 p-0.5 rounded bg-black/70 text-white/60 hover:text-white transition-colors"
+                                >
+                                  <X size={8} />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* After Image */}
+                          <div className="flex flex-col space-y-2 p-3 rounded-2xl bg-white/[0.02] border border-white/5">
+                            <label className="text-[9px] font-mono text-white/40">AFTER IMAGE</label>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                id="cat-after-file"
+                                className="hidden"
+                                onChange={(e) => handleFileChange(e, setCatAfterImage)}
+                              />
+                              <label
+                                htmlFor="cat-after-file"
+                                className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white text-xs font-semibold cursor-pointer transition-all duration-300 flex-shrink-0"
+                              >
+                                <Upload size={11} />
+                                File
+                              </label>
+                              <input
+                                type="url"
+                                placeholder="Or image URL"
+                                value={catAfterImage.startsWith("data:") ? "" : catAfterImage}
+                                onChange={(e) => setCatAfterImage(e.target.value)}
+                                className="flex-1 px-3 py-2 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none placeholder-white/20"
+                              />
+                            </div>
+                            {catAfterImage && (
+                              <div className="relative w-12 h-12 rounded-lg overflow-hidden border border-white/10 mt-1">
+                                <img src={catAfterImage} className="w-full h-full object-cover" alt="preview" />
+                                <button
+                                  type="button"
+                                  onClick={() => setCatAfterImage("")}
+                                  className="absolute top-0.5 right-0.5 p-0.5 rounded bg-black/70 text-white/60 hover:text-white transition-colors"
+                                >
+                                  <X size={8} />
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
 
