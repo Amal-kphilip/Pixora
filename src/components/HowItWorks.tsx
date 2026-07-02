@@ -91,7 +91,7 @@ export default function HowItWorks() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
-          className="relative grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16 items-start"
+          className="relative flex flex-col lg:grid lg:grid-cols-3 gap-12 lg:gap-16 items-start"
         >
           {/* Connecting Line (Desktop) */}
           <div className="hidden lg:block absolute top-[45px] left-[15%] right-[15%] h-[1px] bg-white/10 origin-left z-0">
@@ -106,59 +106,64 @@ export default function HowItWorks() {
               <motion.div
                 key={step.num}
                 variants={itemVariants}
-                className="relative flex flex-col items-center lg:items-start text-center lg:text-left group z-10"
+                className="relative flex flex-row lg:flex-col items-start lg:items-start text-left lg:text-left group z-10 w-full"
               >
-                {/* Mobile connecting vertical line */}
-                {idx < 2 && (
-                  <div className="lg:hidden absolute top-[90px] bottom-[-48px] left-1/2 -translate-x-1/2 w-[1px] bg-white/10 origin-top">
-                    <motion.div
-                      variants={verticalLineVariants}
-                      className="w-full h-full bg-brand-accent"
-                    />
+                {/* Left Column for Icon and Connecting Line (Mobile) */}
+                <div className="flex flex-col items-center flex-shrink-0 mr-6 lg:mr-0 relative">
+                  {/* Step Circle */}
+                  <div className="w-[72px] h-[72px] lg:w-[90px] lg:h-[90px] rounded-3xl glass flex items-center justify-center relative mb-6 group-hover:border-brand-accent/30 transition-colors duration-300">
+                    <div className="absolute -top-2.5 -right-2.5 w-6 h-6 rounded-lg bg-brand-accent flex items-center justify-center text-[10px] font-bold text-brand-bg font-mono">
+                      {step.num}
+                    </div>
+                    {step.icon}
                   </div>
-                )}
 
-                {/* Step Circle */}
-                <div className="w-[90px] h-[90px] rounded-3xl glass flex items-center justify-center relative mb-6 group-hover:border-brand-accent/30 transition-colors duration-300">
-                  <div className="absolute -top-2.5 -right-2.5 w-6 h-6 rounded-lg bg-brand-accent flex items-center justify-center text-[10px] font-bold text-brand-bg font-mono">
-                    {step.num}
-                  </div>
-                  {step.icon}
+                  {/* Mobile connecting vertical line (Runs down from icon column) */}
+                  {idx < 2 && (
+                    <div className="lg:hidden absolute top-[72px] bottom-[-48px] left-1/2 -translate-x-1/2 w-[1px] bg-white/10 origin-top">
+                      <motion.div
+                        variants={verticalLineVariants}
+                        className="w-full h-full bg-brand-accent"
+                      />
+                    </div>
+                  )}
                 </div>
 
-                {/* Content */}
-                <h3 className="text-xl font-display font-bold text-white mb-3">
-                  {step.title}
-                </h3>
-                <p className="text-brand-muted text-sm leading-relaxed max-w-sm lg:max-w-none">
-                  {step.description}
-                </p>
+                {/* Right Column for Content */}
+                <div className="flex-1 pt-2 lg:pt-0">
+                  <h3 className="text-xl font-display font-bold text-white mb-3">
+                    {step.title}
+                  </h3>
+                  <p className="text-brand-muted text-sm leading-relaxed max-w-sm lg:max-w-none">
+                    {step.description}
+                  </p>
 
-                {/* Custom software badges for Step 2 */}
-                {idx === 1 && (
-                  <motion.div 
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                    className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mt-5"
-                  >
-                    {/* Photoshop */}
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#001E36] border border-[#005C9E] text-xs font-bold text-[#00A8FF]">
-                      <span className="text-[10px] font-mono leading-none">Ps</span>
-                      <span className="text-[9px] font-medium text-white/70">Photoshop</span>
-                    </div>
-                    {/* Lightroom */}
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#001D21] border border-[#005761] text-xs font-bold text-[#00D8F6]">
-                      <span className="text-[10px] font-mono leading-none">Lr</span>
-                      <span className="text-[9px] font-medium text-white/70">Lightroom</span>
-                    </div>
-                    {/* Midjourney */}
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs font-bold text-white/80">
-                      <span className="text-[10px] font-mono leading-none">Mj</span>
-                      <span className="text-[9px] font-medium text-white/60">Midjourney</span>
-                    </div>
-                  </motion.div>
-                )}
+                  {/* Custom software badges for Step 2 */}
+                  {idx === 1 && (
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      transition={{ delay: 0.3 }}
+                      className="flex flex-wrap items-center justify-start gap-2 mt-5"
+                    >
+                      {/* Photoshop */}
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#001E36] border border-[#005C9E] text-xs font-bold text-[#00A8FF]">
+                        <span className="text-[10px] font-mono leading-none">Ps</span>
+                        <span className="text-[9px] font-medium text-white/70">Photoshop</span>
+                      </div>
+                      {/* Lightroom */}
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#001D21] border border-[#005761] text-xs font-bold text-[#00D8F6]">
+                        <span className="text-[10px] font-mono leading-none">Lr</span>
+                        <span className="text-[9px] font-medium text-white/70">Lightroom</span>
+                      </div>
+                      {/* Midjourney */}
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs font-bold text-white/80">
+                        <span className="text-[10px] font-mono leading-none">Mj</span>
+                        <span className="text-[9px] font-medium text-white/60">Midjourney</span>
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
               </motion.div>
             );
           })}

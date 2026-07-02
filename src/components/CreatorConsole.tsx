@@ -250,7 +250,10 @@ export const DEFAULT_PROMPTS: PromptItem[] = ${JSON.stringify(prompts, null, 2)}
                 </div>
 
                 {/* Form fields wrapper (Scrollable) */}
-                <div className="flex-1 overflow-y-auto pr-1 min-h-0 pb-12">
+                <div 
+                  data-lenis-prevent
+                  className="flex-1 overflow-y-auto pr-1 min-h-0 pb-12"
+                >
                   {activeTab === "prompt" ? (
                     /* Prompt form */
                     <form onSubmit={handlePromptSubmit} className="space-y-4">

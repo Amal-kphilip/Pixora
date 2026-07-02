@@ -300,7 +300,10 @@ export default function FeatureGrid() {
                   </div>
 
                   {/* Prompts list (Scrollable area) */}
-                  <div className="flex-1 flex flex-col space-y-6 overflow-y-auto pr-1 min-h-0 pb-4">
+                  <div 
+                    data-lenis-prevent
+                    className="flex-1 flex flex-col space-y-6 overflow-y-auto pr-1 min-h-0 pb-4"
+                  >
                     {selectedCategory.prompts.length === 0 ? (
                       <p className="text-xs text-white/50 italic text-center py-8">
                         No prompts added in this category yet. Use the Creator Studio to add prompts.
