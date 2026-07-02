@@ -228,16 +228,18 @@ export default function FeatureGrid() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 20 }}
               transition={{ type: "spring", duration: 0.5 }}
-              className="relative max-w-xl w-full max-h-[85vh] flex flex-col glass rounded-3xl p-8 border border-white/10 shadow-2xl overflow-hidden"
+              className="relative max-w-xl w-full max-h-[85vh] flex flex-col glass rounded-3xl p-6 md:p-8 border border-white/10 shadow-2xl overflow-hidden"
             >
-              {/* Close Button */}
-              <button
-                onClick={() => setSelectedCategory(null)}
-                className="absolute top-5 right-5 p-2 rounded-xl border border-white/5 bg-white/5 text-white/60 hover:text-white hover:bg-white/10 transition-colors z-20"
-                aria-label="Close modal"
-              >
-                <X size={18} />
-              </button>
+              {/* Top Close Bar - Always visible, inline, and never overlapping */}
+              <div className="flex justify-end mb-2 flex-shrink-0 z-20">
+                <button
+                  onClick={() => setSelectedCategory(null)}
+                  className="p-2 rounded-xl border border-white/5 bg-white/5 text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+                  aria-label="Close modal"
+                >
+                  <X size={16} />
+                </button>
+              </div>
 
               {/* Locked Screen */}
               {!unlockedCategories[selectedCategory.id] ? (
