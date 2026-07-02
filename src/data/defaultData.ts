@@ -14,6 +14,8 @@ export interface CategoryItem {
   name: string;
   description: string;
   image: string;
+  beforeImage?: string;
+  afterImage?: string;
   beforeFilter: string; // Stored as standard CSS filter string
   afterFilter: string;  // Stored as standard CSS filter string
   prompts: { title: string; text: string }[];

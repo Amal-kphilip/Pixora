@@ -73,6 +73,8 @@ export default function CreatorConsole() {
   const [catName, setCatName] = useState("");
   const [catDesc, setCatDesc] = useState("");
   const [catImage, setCatImage] = useState("");
+  const [catBeforeImage, setCatBeforeImage] = useState("");
+  const [catAfterImage, setCatAfterImage] = useState("");
   const [catBefore, setCatBefore] = useState("saturate(0.5) contrast(0.9)");
   const [catAfter, setCatAfter] = useState("saturate(1.4) contrast(1.15)");
 
@@ -115,7 +117,9 @@ export default function CreatorConsole() {
       id: catId,
       name: catName,
       description: catDesc,
-      image: catImage || defaultImg,
+      image: catImage || catAfterImage || catBeforeImage || defaultImg,
+      beforeImage: catBeforeImage || undefined,
+      afterImage: catAfterImage || undefined,
       beforeFilter: catBefore,
       afterFilter: catAfter
     });
@@ -124,6 +128,8 @@ export default function CreatorConsole() {
     setCatName("");
     setCatDesc("");
     setCatImage("");
+    setCatBeforeImage("");
+    setCatAfterImage("");
     alert("Category added successfully!");
   };
 
@@ -374,6 +380,30 @@ export const DEFAULT_PROMPTS: PromptItem[] = ${JSON.stringify(prompts, null, 2)}
                           onChange={(e) => setCatImage(e.target.value)}
                           className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none placeholder-white/20"
                         />
+                      </div>
+
+                      {/* Before / After Images (Optional) */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="flex flex-col space-y-1">
+                          <label className="text-[10px] font-mono text-white/50">BEFORE IMAGE URL (OPTIONAL)</label>
+                          <input
+                            type="url"
+                            placeholder="Raw before photo link"
+                            value={catBeforeImage}
+                            onChange={(e) => setCatBeforeImage(e.target.value)}
+                            className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none placeholder-white/20"
+                          />
+                        </div>
+                        <div className="flex flex-col space-y-1">
+                          <label className="text-[10px] font-mono text-white/50">AFTER IMAGE URL (OPTIONAL)</label>
+                          <input
+                            type="url"
+                            placeholder="Graded after photo link"
+                            value={catAfterImage}
+                            onChange={(e) => setCatAfterImage(e.target.value)}
+                            className="px-4 py-3 rounded-xl bg-black/40 border border-white/5 focus:border-brand-accent/40 text-xs text-white focus:outline-none placeholder-white/20"
+                          />
+                        </div>
                       </div>
 
                       {/* Before / After Filters */}

@@ -146,7 +146,7 @@ export default function FeatureGrid() {
                 <div className="relative w-full h-[220px] rounded-2xl overflow-hidden mb-6 bg-[#0E0E12]">
                   {/* Base Original (Before) Image */}
                   <img
-                    src={cat.image}
+                    src={cat.beforeImage || cat.image}
                     alt={`${cat.name} Before`}
                     style={{ filter: cat.beforeFilter }}
                     className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-expo-out ${
@@ -157,7 +157,7 @@ export default function FeatureGrid() {
                   />
                   {/* Graded (After) Image overlay */}
                   <img
-                    src={cat.image}
+                    src={cat.afterImage || cat.image}
                     alt={`${cat.name} After`}
                     style={{ filter: cat.afterFilter }}
                     className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-expo-out ${
