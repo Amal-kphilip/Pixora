@@ -73,7 +73,7 @@ export default function Showcase() {
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-accent/10 border border-brand-accent/20 text-xs font-semibold text-brand-accent mb-4">
                 <Paintbrush size={12} /> Interactive Lab
               </span>
-              <h2 className="text-4xl md:text-5xl font-display font-black tracking-tight text-white leading-tight">
+              <h2 className="text-3xl md:text-5xl font-display font-black tracking-tight text-white leading-tight">
                 Press me to color grade.
               </h2>
               <p className="text-brand-muted text-sm md:text-base mt-4 leading-relaxed">

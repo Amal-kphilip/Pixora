@@ -47,7 +47,7 @@ export default function PromptLibrary() {
           <h2 className="text-sm font-semibold tracking-wider uppercase text-brand-accent">
             Prompt Database
           </h2>
-          <p className="text-4xl md:text-5xl font-display font-black tracking-tight text-white">
+          <p className="text-3xl md:text-5xl font-display font-black tracking-tight text-white">
             Explore the variables.
           </p>
           <p className="text-brand-muted max-w-md text-sm md:text-base leading-relaxed">

@@ -77,7 +77,7 @@ export default function HowItWorks() {
           <h2 className="text-sm font-semibold tracking-wider uppercase text-brand-accent mb-3">
             Workflow Integration
           </h2>
-          <p className="text-4xl md:text-5xl font-display font-black tracking-tight text-white leading-tight">
+          <p className="text-3xl md:text-5xl font-display font-black tracking-tight text-white leading-tight">
             How it works
           </p>
           <p className="text-brand-muted text-sm md:text-base mt-4">
