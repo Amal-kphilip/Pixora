@@ -1,8 +1,13 @@
 "use client";
 
-import { ArrowUp } from "lucide-react";
+import { useState } from "react";
+import { ArrowUp, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Footer() {
+  const [modalTitle, setModalTitle] = useState<string | null>(null);
+  const [modalContent, setModalContent] = useState<string>("");
+
   const handleScrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -10,31 +15,73 @@ export default function Footer() {
     });
   };
 
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith("#")) {
+      e.preventDefault();
+      const targetElement = document.querySelector(href);
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
+
+  const handlePlaceholderClick = (e: React.MouseEvent, name: string) => {
+    e.preventDefault();
+    setModalTitle(name);
+    
+    // Premium, context-aware information for each footer resource
+    if (name === "Photographer Guide") {
+      setModalContent("Learn how to engineer prompts to achieve perfect volumetric lighting, photographic grain, film stocks, and exact focal lengths using raw camera formulas.");
+    } else if (name === "Prompting Syntax") {
+      setModalContent("A complete syntax reference index for parameter flags such as aspect ratios (--ar), stylization ratios (--stylize), randomness (--weird), and custom rendering configurations.");
+    } else if (name === "Midjourney Specs") {
+      setModalContent("Optimized parameter specifications for Midjourney v6, including photo-realistic render tags, raw engine ratios, and contrast rules.");
+    } else if (name === "Lightroom presets") {
+      setModalContent("Raw XMP profile specifications for Lightroom AI, outlining custom color-grading wheels, tone curves, and luminance controls.");
+    } else if (name === "About Us") {
+      setModalContent("Pixora is a premium prompt laboratory founded by visual artists to accelerate color grading pipelines and asset setups for modern photographic algorithms.");
+    } else if (name === "Careers") {
+      setModalContent("We are always seeking creative prompt engineers and directors. Send your portfolio to our team at careers@pixora.com.");
+    } else if (name === "Partnerships") {
+      setModalContent("Partner with Pixora to integrate custom preset styles and lighting models directly into your studio's asset manager pipelines.");
+    } else if (name === "Press Room") {
+      setModalContent("Access press kits, branding elements, high-resolution showcase assets, and official media releases.");
+    } else if (name === "Privacy Policy") {
+      setModalContent("We value your privacy. No personal search queries or bookmarked favorites data are uploaded to our servers; everything is kept securely on your local device.");
+    } else if (name === "Terms of Service") {
+      setModalContent("By using Pixora, you agree to use our prompt formulas for both commercial and personal creative grading purposes. Redissemination of the raw codebase structure is prohibited.");
+    } else if (name === "Refund Policy") {
+      setModalContent("Since Pixora is a public open-source database, all prompt formulas and CDN assets are provided free of charge with lifetime updates.");
+    } else if (name === "Licensing rules") {
+      setModalContent("Prompt formulas are licensed under the MIT creative commons license. Commercial outputs generated using the prompts are entirely yours.");
+    }
+  };
+
   const currentYear = new Date().getFullYear();
 
   const footerLinks = {
     Product: [
-      { name: "Prompts Library", href: "#library" },
-      { name: "Categories", href: "#categories" },
-      { name: "Showcase presets", href: "#presets" }
+      { name: "Prompts Library", href: "#library", action: false },
+      { name: "Categories", href: "#categories", action: false },
+      { name: "Showcase presets", href: "#presets", action: false }
     ],
     Resources: [
-      { name: "Photographer Guide", href: "#" },
-      { name: "Prompting Syntax", href: "#" },
-      { name: "Midjourney Specs", href: "#" },
-      { name: "Lightroom presets", href: "#" }
+      { name: "Photographer Guide", href: "#", action: true },
+      { name: "Prompting Syntax", href: "#", action: true },
+      { name: "Midjourney Specs", href: "#", action: true },
+      { name: "Lightroom presets", href: "#", action: true }
     ],
     Company: [
-      { name: "About Us", href: "#" },
-      { name: "Careers", href: "#" },
-      { name: "Partnerships", href: "#" },
-      { name: "Press Room", href: "#" }
+      { name: "About Us", href: "#", action: true },
+      { name: "Careers", href: "#", action: true },
+      { name: "Partnerships", href: "#", action: true },
+      { name: "Press Room", href: "#", action: true }
     ],
     Legal: [
-      { name: "Privacy Policy", href: "#" },
-      { name: "Terms of Service", href: "#" },
-      { name: "Refund Policy", href: "#" },
-      { name: "Licensing rules", href: "#" }
+      { name: "Privacy Policy", href: "#", action: true },
+      { name: "Terms of Service", href: "#", action: true },
+      { name: "Refund Policy", href: "#", action: true },
+      { name: "Licensing rules", href: "#", action: true }
     ]
   };
 
@@ -81,7 +128,7 @@ export default function Footer() {
                       <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
                     </svg>
                   ), 
-                  href: "#" 
+                  href: "https://www.instagram.com/amalkp29/" 
                 },
                 { 
                   icon: (
@@ -90,7 +137,7 @@ export default function Footer() {
                       <circle cx="12" cy="12" r="3"/>
                     </svg>
                   ), 
-                  href: "#" 
+                  href: "mailto:amalkaduppilphilip@gmail.com" 
                 },
                 { 
                   icon: (
@@ -99,12 +146,14 @@ export default function Footer() {
                       <path d="M9 18c-4.51 2-5-2-7-2"/>
                     </svg>
                   ), 
-                  href: "#" 
+                  href: "https://github.com/Amal-kphilip/Pixora" 
                 }
               ].map((social, idx) => (
                 <a
                   key={idx}
                   href={social.href}
+                  target={social.href.startsWith("http") ? "_blank" : undefined}
+                  rel={social.href.startsWith("http") ? "noopener noreferrer" : undefined}
                   className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 hover:border-brand-accent/30 text-white/60 hover:text-brand-accent flex items-center justify-center transition-all duration-300"
                 >
                   {social.icon}
@@ -122,12 +171,22 @@ export default function Footer() {
               <ul className="flex flex-col space-y-2.5">
                 {links.map((link) => (
                   <li key={link.name}>
-                    <a
-                      href={link.href}
-                      className="text-xs text-brand-muted hover:text-brand-accent transition-colors duration-200"
-                    >
-                      {link.name}
-                    </a>
+                    {link.action ? (
+                      <button
+                        onClick={(e) => handlePlaceholderClick(e, link.name)}
+                        className="text-xs text-brand-muted hover:text-brand-accent transition-colors duration-200 text-left focus:outline-none"
+                      >
+                        {link.name}
+                      </button>
+                    ) : (
+                      <a
+                        href={link.href}
+                        onClick={(e) => handleLinkClick(e, link.href)}
+                        className="text-xs text-brand-muted hover:text-brand-accent transition-colors duration-200"
+                      >
+                        {link.name}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -160,6 +219,50 @@ export default function Footer() {
           PIXORA
         </h1>
       </div>
+
+      {/* Informational Modal */}
+      <AnimatePresence>
+        {modalTitle && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setModalTitle(null)}
+              className="fixed inset-0 bg-black/80 backdrop-blur-md z-[99999] pointer-events-auto"
+            />
+            {/* Modal Box */}
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, x: "-50%", y: "-50%" }}
+              animate={{ scale: 1, opacity: 1, x: "-50%", y: "-50%" }}
+              exit={{ scale: 0.95, opacity: 0, x: "-50%", y: "-50%" }}
+              className="fixed top-1/2 left-1/2 w-[90%] max-w-md p-6 rounded-3xl bg-[#0F0F13] border border-white/10 z-[100000] shadow-2xl flex flex-col space-y-6"
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-white/5">
+                <h3 className="text-xs font-display font-black text-brand-accent tracking-wide uppercase">
+                  {modalTitle}
+                </h3>
+                <button
+                  onClick={() => setModalTitle(null)}
+                  className="p-1.5 rounded-lg hover:bg-white/5 text-white/50 hover:text-white transition-colors"
+                >
+                  <X size={15} />
+                </button>
+              </div>
+              <p className="text-xs text-white/70 leading-relaxed font-mono">
+                {modalContent}
+              </p>
+              <button
+                onClick={() => setModalTitle(null)}
+                className="w-full py-3.5 rounded-xl bg-brand-accent text-brand-bg font-black text-xs tracking-wider shadow-accent hover:shadow-accent-strong transition-all duration-300"
+              >
+                Close Window
+              </button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </footer>
   );
 }
