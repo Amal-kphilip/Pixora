@@ -194,7 +194,7 @@ export const DEFAULT_PROMPTS: PromptItem[] = [
     category: "Moody Film Looks",
     tool: "Midjourney",
     promptText: "Lush green Munnar tea gardens, Kerala, heavy monsoon rain downpour, dense fog covering the hills, winding wet roads, cinematic color grading --ar 16:9 --v 6.0",
-    image: "https://images.unsplash.com/photo-1596701062351-df1ff690f924?auto=format&fit=crop&w=500&q=80",
+    image: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=500&q=80",
     complexity: "Advanced"
   },
   {
@@ -203,7 +203,7 @@ export const DEFAULT_PROMPTS: PromptItem[] = [
     category: "Moody Film Looks",
     tool: "Midjourney",
     promptText: "A lone hiker with a technical backpack trekking up a steep foggy mountain ridge in Western Ghats, Kerala, dense fog, dew drops on wild grass, walking poles, moody twilight, cinematic style --ar 16:9 --style raw",
-    image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=500&q=80",
+    image: "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=500&q=80",
     complexity: "Pro"
   },
   {
@@ -212,7 +212,7 @@ export const DEFAULT_PROMPTS: PromptItem[] = [
     category: "Vintage Film Emulation",
     tool: "Lightroom",
     promptText: "Kerala monsoon color grading preset: Saturate forest greens, shift blues to dark cyan, lift shadows with heavy mist grain, soft highlights compression --style moody",
-    image: "https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?auto=format&fit=crop&w=500&q=80",
+    image: "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=500&q=80",
     complexity: "Basic"
   }
 ];
