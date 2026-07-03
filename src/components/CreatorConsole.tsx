@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sliders, X, Plus, Sparkles, Layers, FileText, Upload, LogIn, LogOut, Loader2, Trash2 } from "lucide-react";
+import { Sliders, X, Plus, Sparkles, Layers, FileText, Upload, LogIn, LogOut, Loader2, Trash2, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePixora } from "@/context/PixoraContext";
 import { useLenis } from "@studio-freight/react-lenis";
@@ -50,7 +50,7 @@ const compressImage = (file: File, maxW = 800, maxH = 800): Promise<string> => {
 
 export default function CreatorConsole() {
   const lenis = useLenis();
-  const { categories, prompts, addPrompt, addCategory, deletePrompt, deleteCategory } = usePixora();
+  const { categories, prompts, addPrompt, addCategory, deletePrompt, deleteCategory, resetData } = usePixora();
   const [isOpen, setIsOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [activeTab, setActiveTab] = useState<"prompt" | "category">("prompt");
@@ -349,6 +349,17 @@ export default function CreatorConsole() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          if (confirm("WARNING: This will completely delete all custom records from your Supabase cloud database and reset it to default templates (including the new Monsoon/Trucking/Foggy presets). Continue?")) {
+                            resetData();
+                          }
+                        }}
+                        className="p-1.5 rounded-lg border border-white/5 bg-white/5 text-white/60 hover:text-yellow-400 transition-colors"
+                        title="Reset & Re-seed Database"
+                      >
+                        <RotateCcw size={14} />
+                      </button>
                       <button
                         onClick={handleLogout}
                         className="p-1.5 rounded-lg border border-white/5 bg-white/5 text-white/60 hover:text-red-400 transition-colors"
