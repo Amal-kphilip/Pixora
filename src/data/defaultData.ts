@@ -199,11 +199,11 @@ export const DEFAULT_PROMPTS: PromptItem[] = [
   },
   {
     id: "pr-8",
-    title: "Misty Mountain Trucking",
+    title: "Misty Mountain Trekking",
     category: "Moody Film Looks",
     tool: "Midjourney",
-    promptText: "Traditional Indian cargo truck driving through a steep foggy mountain pass, headlights cutting through thick mist, wet asphalt road, moody twilight, cinematic style --ar 16:9 --style raw",
-    image: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=500&q=80",
+    promptText: "A lone hiker with a technical backpack trekking up a steep foggy mountain ridge in Western Ghats, Kerala, dense fog, dew drops on wild grass, walking poles, moody twilight, cinematic style --ar 16:9 --style raw",
+    image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=500&q=80",
     complexity: "Pro"
   },
   {

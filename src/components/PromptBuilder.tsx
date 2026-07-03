@@ -33,7 +33,7 @@ export default function PromptBuilder() {
     { name: "Cyberpunk Neon (Rain Reflected Tones)", value: "vibrant neon illumination, rainy wet pavement reflections, magenta and cyan highlights" },
     { name: "Dappled Sunlight (Natural Shadows)", value: "dappled sunlight filtering through tree leaves, organic leaf shadows, bright ambient light" },
     { name: "Dense Monsoon Downpour (Misty Overlay)", value: "heavy monsoon rain downpour, overcast sky, water droplets on lens, soft volumetric mist" },
-    { name: "Misty Fog Twilight (Headlight Flare)", value: "dense foggy mist twilight ambiance, truck headlights cutting through thick fog, lens flare" },
+    { name: "Misty Fog Twilight (Atmospheric Glow)", value: "dense foggy mist twilight ambiance, soft natural mountain light filtering through thick fog, organic shadows" },
   ];
 
   const subjects = [
@@ -43,7 +43,7 @@ export default function PromptBuilder() {
     { name: "Cyberpunk Alleyway Scene", value: "futuristic cyberpunk alleyway, steam rising" },
     { name: "Moody Wilderness Landscape", value: "misty forest mountains landscape, low fog" },
     { name: "Kerala Monsoon Tea Plantation", value: "lush Kerala monsoon scene, Munnar tea plantation terraces, winding wet road" },
-    { name: "Misty Mountain Cargo Truck", value: "colorful traditional Indian cargo truck driving slowly through a steep foggy mountain pass" },
+    { name: "Misty Mountain Trekker", value: "lone hiker with a technical backpack trekking up a steep foggy mountain ridge with walking poles" },
     { name: "Foggy Silent Pine Forest", value: "dense fog and silent misty pine forest road, atmospheric dark mood" },
   ];
 
