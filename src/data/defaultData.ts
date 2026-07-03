@@ -214,5 +214,14 @@ export const DEFAULT_PROMPTS: PromptItem[] = [
     promptText: "Kerala monsoon color grading preset: Saturate forest greens, shift blues to dark cyan, lift shadows with heavy mist grain, soft highlights compression --style moody",
     image: "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=500&q=80",
     complexity: "Basic"
+  },
+  {
+    id: "pr-10",
+    title: "Premium Editorial Photoshop Grade",
+    category: "Portrait Retouching",
+    tool: "Photoshop",
+    promptText: "Apply a premium cinematic editorial color grade while preserving the original composition exactly. Create a bright overcast atmosphere with a clean light-white sky, soft luminous clouds, delicate mist, and subtle fog masking instead of a dark sky. Keep the subject perfectly masked, sharp, naturally exposed, and richly detailed. Apply a soft background blur with realistic shallow depth of field while maintaining foreground clarity. Slightly brighten the overall exposure with smooth cinematic contrast, soft highlight roll-off, cool neutral tones, gently teal-tinted blacks, muted yet naturally saturated greens, soft gray shadows, clean whites, subtle bloom, realistic HDR, premium matte film look, luxury color grading, fine cinematic film grain, smooth tonal transitions, atmospheric depth, ultra-realistic 8K finish, and a polished high-end professional photography aesthetic.",
+    image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=500&q=80",
+    complexity: "Pro"
   }
 ];
