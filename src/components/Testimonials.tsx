@@ -66,7 +66,7 @@ export default function Testimonials() {
     <section className="py-24 bg-brand-bg relative z-10 select-none overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 space-y-4 md:space-y-0">
+        <div className="flex flex-col md:flex-row md:items-start justify-between mb-16 space-y-4 md:space-y-0">
           <div>
             <h2 className="text-sm font-semibold tracking-wider uppercase text-brand-accent mb-3">
               CREATORS PULSE
